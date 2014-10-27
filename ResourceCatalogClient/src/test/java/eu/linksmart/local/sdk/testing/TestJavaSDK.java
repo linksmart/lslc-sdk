@@ -52,8 +52,8 @@ public class TestJavaSDK {
 
         // register device with RC
 
-        DeviceManagementClient client = new DeviceManagementClient(new URL("http://localhost:7778/rc/"));
-        //DeviceManagementClient client = new DeviceManagementClient(new URL("http://gando.fit.fraunhofer.de:8091/rc/"));
+        //DeviceManagementClient client = new DeviceManagementClient(new URL("http://localhost:7778/rc/"));
+        DeviceManagementClient client = new DeviceManagementClient(new URL("http://gando.fit.fraunhofer.de:8091/rc/"));
 
         client.registerDevice(device);
 

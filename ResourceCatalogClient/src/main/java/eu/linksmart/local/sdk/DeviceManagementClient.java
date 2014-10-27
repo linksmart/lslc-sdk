@@ -31,6 +31,8 @@ public class DeviceManagementClient implements IDeviceManagement {
 
         String hostID = "JavaRegistrationClient";
 
+        int totalResources = aDevice.resources.size();
+
         try {
             hostID = InetAddress.getLocalHost().getHostName();
         } catch (UnknownHostException e) {
@@ -45,57 +47,70 @@ public class DeviceManagementClient implements IDeviceManagement {
         aRegistration.addProperty("description",aDevice.description);
         aRegistration.addProperty("ttl",aDevice.ttl);
 
-
-        // create root resource document
-        JsonObject aResource = new JsonObject();
-        // add simple types
-        aResource.addProperty("id", hostID+"/"+aDevice.name+"/"+ UUID.randomUUID().toString());
-        aResource.addProperty("type",aDevice.resources.get(0).type);
-        aResource.addProperty("name",aDevice.resources.get(0).name);
-        aResource.addProperty("device",aDevice.resources.get(0).device);
-
-
-        // create array of protocols
-        JsonArray resourceProtocolArray = new JsonArray();
-        // create one protocol item
-        JsonObject protocol = new JsonObject();
-        protocol.addProperty("type",aDevice.resources.get(0).protocols.get(0).type);
-
-        JsonObject endpoint = new JsonObject();
-        endpoint.addProperty("url",aDevice.resources.get(0).protocols.get(0).endpoint.toString());
-
-        protocol.add("endpoint", endpoint);
-
-        JsonArray methods = new JsonArray();
-        JsonObject method = new JsonObject();
-
-        JsonPrimitive item = new JsonPrimitive(aDevice.resources.get(0).protocols.get(0).methods.get(0));
-        methods.add(item);
-        protocol.add("methods",methods);
-
-
-        JsonArray contentTypes = new JsonArray();
-        System.out.println("content type: "+aDevice.resources.get(0).protocols.get(0).contentTypes.get(0).toString());
-        JsonPrimitive contentType = new JsonPrimitive(aDevice.resources.get(0).protocols.get(0).contentTypes.get(0).toString());
-        contentTypes.add(contentType);
-        protocol.add("content-types",contentTypes);
-
-        // add protocol to protocol array
-        resourceProtocolArray.add(protocol);
-        // add protocol array to root document
-        aResource.add("protocols",resourceProtocolArray);
-
-        // create representation document . WTF quite complex type with double layer. SIMPLIFY !
-        JsonObject representation = new JsonObject();
-        JsonObject textPlain = new JsonObject();
-        textPlain.addProperty("type",aDevice.resources.get(0).representation.type);
-        representation.add(aDevice.resources.get(0).representation.contentType.toString(), textPlain);
-        aResource.add("representation",representation);
-
-
-        // create array of  resources
+        // create empty array of  resources
         JsonArray resourcesArray = new JsonArray();
-        resourcesArray.add(aResource);
+
+
+        // iterate over all resources from device
+
+        for(int i=0; i < totalResources; i++) {
+            // create root resource document
+            JsonObject aResource = new JsonObject();
+            // add simple types to JSON resource representation
+            aResource.addProperty("id", hostID + "/" + aDevice.name + "/" + UUID.randomUUID().toString());
+            aResource.addProperty("type", aDevice.resources.get(i).type);
+            aResource.addProperty("name", aDevice.resources.get(i).name);
+            aResource.addProperty("device", aDevice.resources.get(i).device);
+
+
+            // create array of protocols
+            JsonArray resourceProtocolArray = new JsonArray();
+            // interate over all protocols from device
+            for(int j=0; j < aDevice.resources.get(i).protocols.size(); j++ ) {
+                // create one protocol item
+                JsonObject protocol = new JsonObject();
+                protocol.addProperty("type", aDevice.resources.get(i).protocols.get(j).type);
+
+                JsonObject endpoint = new JsonObject();
+                endpoint.addProperty("url", aDevice.resources.get(i).protocols.get(j).endpoint.toString());
+
+                protocol.add("endpoint", endpoint);
+
+                JsonArray methods = new JsonArray();
+                // interate over all possible protocol methods
+                for(int z=0; z < aDevice.resources.get(i).protocols.get(j).methods.size(); z++) {
+                    JsonObject method = new JsonObject();
+                    JsonPrimitive item = new JsonPrimitive(aDevice.resources.get(i).protocols.get(j).methods.get(z));
+                    methods.add(item);
+                    protocol.add("methods", methods);
+                }
+
+
+                JsonArray contentTypes = new JsonArray();
+                // iterate over all possible content types of given protocol
+                for(int z=0; z < aDevice.resources.get(i).protocols.get(j).contentTypes.size(); z++ ) {
+                    System.out.println("content type: " + aDevice.resources.get(i).protocols.get(j).contentTypes.get(0).toString());
+                    JsonPrimitive contentType = new JsonPrimitive(aDevice.resources.get(i).protocols.get(j).contentTypes.get(0).toString());
+                    contentTypes.add(contentType);
+                    protocol.add("content-types", contentTypes);
+                }
+
+                // add protocol to protocol array
+                resourceProtocolArray.add(protocol);
+                // add protocol array to root document
+                aResource.add("protocols", resourceProtocolArray);
+            }
+
+            // create representation document . WTF quite complex type with double layer. SIMPLIFY !
+            JsonObject representation = new JsonObject();
+            JsonObject textPlain = new JsonObject();
+            textPlain.addProperty("type", aDevice.resources.get(i).representation.type);
+            representation.add(aDevice.resources.get(i).representation.contentType.toString(), textPlain);
+            aResource.add("representation", representation);
+
+
+            resourcesArray.add(aResource);
+        }
 
         aRegistration.add("resources",resourcesArray);
 
