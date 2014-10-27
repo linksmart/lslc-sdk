@@ -9,7 +9,7 @@
         <version>2.2.2-SNAPSHOT</version>
     </parent>
 
-    <groupId>eu.linksmart.testing</groupId>
+    <groupId>eu.linksmart.local.sdk</groupId>
     <artifactId>ResourceCatalogClient</artifactId>
     <version>0.1.0-SNAPSHOT</version>
 
