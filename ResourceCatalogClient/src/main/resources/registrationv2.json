@@ -1,0 +1,45 @@
+{
+        "$schema": "http://linksmart.eu/registration#",
+        "title" : "registration",
+        "description" : "Registration schema for Linksmart LocalConnect",
+        "type" : "object",
+        "properties":  {
+        	"id": {"type": "string"},
+        	"type": {"type": "string", "default" : "Device"},
+        	"name": {"type": "string"},
+        	"description": {"type": "string"},
+            "meta": {"type": "array", "items": {"type": "string"}},
+            "ttl": {"type": "number"},
+            "resources": {"type": "array",
+                          "items": {"type": "object",
+                                    "properties": {
+                                              "properties":  {
+        	"id": {"type": "string"},
+        	"type": {"type": "string", "default" : "Resource"},
+        	"name": {"type": "string"},
+            "meta": {"type": "array", "items": {"type": "string"}},
+            "device": {"type": "string"},
+            "representation": {},
+            "protocols": {
+                "type": "array",
+                 "items": [ { "type": "object",
+                             	"properties": {
+                                  "type": {"type": "string"},
+                                  "endpoint": {},
+                                  "methods": {"type": "array"},
+                                  "content-types": {"type": "array"}
+
+                             	}
+                            }
+                          ]
+            }
+
+        }
+
+                                   }
+                         }
+        },
+
+        "required": ["id"]
+        }
+}
