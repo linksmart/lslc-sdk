@@ -1,0 +1,52 @@
+{
+    "id": "testdc/device1",
+    "type": "Device",
+    "name": "Device1",
+    "meta": {},
+    "description": "device testing",
+    "ttl": 30,
+    "resources": [
+        {
+            "id": "testdc/device1/resource2",
+            "type": "Resource",
+            "name": "resource2",
+            "meta": {
+                "model": "Raspberry Pi B",
+                "type": "Energy",
+                "units": "Watt"
+            },
+            "protocols": [
+                {
+                    "type": "REST",
+                    "endpoint": {
+                        "url": "http://localhost:9000/rest/"
+                    },
+                    "methods": [
+                        "GET"
+                    ],
+                    "content-types": [
+                        "text/plain"
+                    ]
+                },
+                {
+                    "type": "MQTT",
+                    "endpoint": {
+                        "broker": "tcp://localhost:1883",
+                        "topic": "/topic1/resource1"
+                    },
+                    "methods": [
+                        "PUB"
+                    ],
+                    "content-types": [
+                        "text/plain"
+                    ]
+                }
+            ],
+            "representation": {
+                "text/plain": {
+                    "type": "number"
+                }
+            }
+        }
+    ]
+}
