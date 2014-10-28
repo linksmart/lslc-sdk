@@ -24,6 +24,15 @@ public class CatalogTest {
 	@Test
 	public void testTypesBinding() {
 		
+		Registration registration = createRegistration();
+		System.out.println("Gson generated registration json: " + new Gson().toJson(registration));
+		
+		assertTrue(ResourceCatalog.registerDevice(registration));
+		
+		assertTrue(ResourceCatalog.updateDevice("testdc/device-gen", registration));
+		
+		assertTrue(ResourceCatalog.deleteDevice("testdc/device-gen"));
+		
 		Catalog catalog = ResourceCatalog.getAllDevices();
 		System.out.println("total devices: " + catalog.getDevices().size() + " - total resources: " + catalog.getResources().size());
 		
@@ -40,21 +49,6 @@ public class CatalogTest {
 		
 		Resource searched_resource = ResourceCatalog.search("resource", "name", "equals", "OfficeDisplayPower");
 		System.out.println("searched-resource-name: " + searched_resource.getName());
-	}
-	
-	@Test
-	public void testCatalog() {
-		
-		Registration registration = createRegistration();
-		
-		String jsonString = new Gson().toJson(registration);
-		System.out.println("Gson generated: " + jsonString);
-		
-		assertTrue(ResourceCatalog.registerDevice(registration));
-		
-		assertTrue(ResourceCatalog.updateDevice("testdc/device-gen", registration));
-		
-		assertTrue(ResourceCatalog.deleteDevice("testdc/device-gen"));
 	}
 	
 	private Registration createRegistration() {
