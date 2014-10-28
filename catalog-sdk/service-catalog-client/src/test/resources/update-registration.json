@@ -1,8 +1,8 @@
 {
-    "id": "sc/testserver/broker",
+    "id": "sc/testserver/broker-2",
     "type": "Service",
-    "name": "MqttBroker",
-    "description": "Demo MQTT Broker",
+    "name": "MqttBroker2",
+    "description": "Demo MQTT Broker2",
     "meta": {
     	"apiVersion": "3.1",
         "serviceType": "_mqtt._tcp.testserver"
