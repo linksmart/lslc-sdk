@@ -11,7 +11,7 @@ public class DeviceBuilderTest {
 	@Test
 	public void testDeviceBuilder() {
 		
-		//assertNotNull(DeviceBuilder.createRegistration(""));
+		assertNotNull(DeviceBuilder.createRegistration("/registration.json"));
 		
 		File jsonFile = new File((this.getClass().getResource(("/registration.json")).getFile()));
 		assertNotNull(DeviceBuilder.createRegistration(jsonFile));

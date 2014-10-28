@@ -1,9 +1,11 @@
 package eu.linksmart.ls.rc.client;
 
 import java.io.File;
+import java.io.FileReader;
+import java.io.InputStreamReader;
+import java.io.Reader;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Scanner;
 
 import com.google.gson.Gson;
 
@@ -16,14 +18,22 @@ import eu.linksmart.ls.rc.types.TextPlain;
 
 public class DeviceBuilder {
 	
-	public static Registration createRegistration(String jsonString) {
-		Registration registration = new Gson().fromJson(jsonString, Registration.class);
+	public static Registration createRegistration(String jsonFileName) {
+		Reader reader = new InputStreamReader(DeviceBuilder.class.getResourceAsStream(jsonFileName));
+		Registration registration = new Gson().fromJson(reader, Registration.class);
 		return registration;
 	}
 	
 	public static Registration createRegistration(File jsonFile) {
-		String jsonString = readFileContents(jsonFile);
-		Registration registration = new Gson().fromJson(jsonString, Registration.class);
+		Reader reader = null;
+		Registration registration = null;
+		try {
+			reader = new FileReader(jsonFile);
+			registration = new Gson().fromJson(reader, Registration.class);
+			reader.close();
+		} catch (Exception e) {
+			e.printStackTrace();
+		} 
 		return registration;
 	}
 	
@@ -73,24 +83,4 @@ public class DeviceBuilder {
 		return registration;
 	}
 	
-	private static String readFileContents(File jsonFile) {
-		
-		StringBuilder fileContents = null;
-		Scanner scanner = null;
-	
-		try {
-			fileContents = new StringBuilder((int)jsonFile.length());
-			scanner = new Scanner(jsonFile);
-			String lineSeparator = System.getProperty("line.separator");
-	        while(scanner.hasNextLine()) {        
-	            fileContents.append(scanner.nextLine() + lineSeparator);
-	        }
-	    } catch(Exception e) {
-	    	e.printStackTrace();
-	    } finally {
-	        scanner.close();
-	    }
-		return fileContents.toString();
-	}
-
 }

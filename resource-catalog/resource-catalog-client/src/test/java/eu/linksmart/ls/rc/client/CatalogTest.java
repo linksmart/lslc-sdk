@@ -25,6 +25,7 @@ public class CatalogTest {
 	public void testTypesBinding() {
 		
 		Registration registration = createRegistration();
+		//DeviceBuilder.createRegistration("testdc/device-b", "device-b", "testdc/device-b/resource-b", "resource-b", "http://localhost:8080/");
 		System.out.println("Gson generated registration json: " + new Gson().toJson(registration));
 		
 		assertTrue(ResourceCatalog.registerDevice(registration));
@@ -47,7 +48,7 @@ public class CatalogTest {
 		Resource resource = ResourceCatalog.getResource("dimmerpi01/Plugwise/OfficeDisplayPower");
 		System.out.println("get-resource-name: " + resource.getName());
 		
-		Resource searched_resource = ResourceCatalog.search("resource", "name", "equals", "OfficeDisplayPower");
+		Resource searched_resource = ResourceCatalog.search(ResourceCatalog.TYPE_RESOURCE, "name", Comparison.EQUALS.getCriteria(), "OfficeDisplayPower");
 		System.out.println("searched-resource-name: " + searched_resource.getName());
 	}
 	
