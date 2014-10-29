@@ -26,15 +26,13 @@ public class CatalogTest {
 	@Test
 	public void testTypesBinding() {
 		
-		Registration registration = createRegistration();
-		//DeviceBuilder.createRegistration("testdc/device-b", "device-b", "testdc/device-b/resource-b", "resource-b", "http://localhost:8080/");
+		Registration registration = DeviceBuilder.createRegistration("testdc/device-b", "device-b", "testdc/device-b/resource-b", "resource-b", "http://localhost:8080/");
+		
 		System.out.println("Gson generated registration json: " + new Gson().toJson(registration));
 		
 		assertTrue(ResourceCatalog.registerDevice(registration));
 		
-		assertTrue(ResourceCatalog.updateDevice("testdc/device-gen", registration));
-		
-		assertTrue(ResourceCatalog.deleteDevice("testdc/device-gen"));
+		assertTrue(ResourceCatalog.updateDevice("testdc/device-b", registration));
 		
 		Catalog catalog = ResourceCatalog.getAllDevices();
 		System.out.println("total devices: " + catalog.getDevices().size() + " - total resources: " + catalog.getResources().size());
@@ -44,14 +42,16 @@ public class CatalogTest {
             System.out.println("device id: " + device.getId());
 		}
 		
-		Device device = ResourceCatalog.getDevice("dimmerpi01/Plugwise");
+		Device device = ResourceCatalog.getDevice("testdc/device-b");
 		System.out.println("get-device-name: " + device.getName());
 		
-		Resource resource = ResourceCatalog.getResource("dimmerpi01/Plugwise/OfficeDisplayPower");
+		Resource resource = ResourceCatalog.getResource("testdc/device-b/resource-b");
 		System.out.println("get-resource-name: " + resource.getName());
 		
-		Resource searched_resource = ResourceCatalog.search(ResourceCatalog.TYPE_RESOURCE, "name", Comparison.EQUALS.getCriteria(), "OfficeDisplayPower");
+		Resource searched_resource = ResourceCatalog.search("name", Comparison.EQUALS.getCriteria(), "resource-b");
 		System.out.println("searched-resource-name: " + searched_resource.getName());
+		
+		assertTrue(ResourceCatalog.deleteDevice("testdc/device-b"));
 	}
 	
 	private Registration createRegistration() {

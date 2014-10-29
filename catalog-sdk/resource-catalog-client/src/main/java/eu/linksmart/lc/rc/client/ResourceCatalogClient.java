@@ -10,7 +10,7 @@ import javax.ws.rs.core.Response;
 public class ResourceCatalogClient
 {
 	
-	private String BASE_URL = "http://gando.fit.fraunhofer.de:8091";
+	private String BASE_URL = "http://localhost:8080";
 	
 	private final String PATH = "rc";
 	

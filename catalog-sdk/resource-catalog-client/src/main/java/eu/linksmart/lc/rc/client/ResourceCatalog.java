@@ -50,8 +50,13 @@ public class ResourceCatalog {
 		return new Gson().fromJson(resourceJsonString, Resource.class);
 	}
 	
-	public static Resource search(String type, String path, String criteria, String value) {
-		String result_updated_sr = ResourceCatalogClient.getInstance(BASE_URL).search(type, path, criteria, value);
+	public static Resource search(String path, String criteria, String value) {
+		String result_updated_sr = ResourceCatalogClient.getInstance(BASE_URL).search(TYPE_RESOURCE, path, criteria, value);
 		return new Gson().fromJson(result_updated_sr, Resource.class);	
+	}
+	
+	public static Device searchDevice(String path, String criteria, String value) {
+		String result_updated_sr = ResourceCatalogClient.getInstance(BASE_URL).search(TYPE_DEVICE, path, criteria, value);
+		return new Gson().fromJson(result_updated_sr, Device.class);	
 	}
 }

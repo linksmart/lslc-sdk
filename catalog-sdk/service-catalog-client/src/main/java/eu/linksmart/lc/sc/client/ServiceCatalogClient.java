@@ -10,7 +10,7 @@ import javax.ws.rs.core.Response;
 public class ServiceCatalogClient
 {
 	
-	private String BASE_URL = "http://gando.fit.fraunhofer.de:8091";
+	private String BASE_URL = "http://localhost:8080";
 	
 	private final String PATH = "sc";
 	
@@ -32,6 +32,31 @@ public class ServiceCatalogClient
     
     private String getAddress(String interface_option) {
         return this.BASE_URL + "/" + interface_option;
+    }
+    
+    public boolean registerService(String serviceJson) {
+    	
+    	try {
+    		
+    		String interface_option = PATH + "/";
+    		
+            WebResource webResourceClient = client.resource(this.getAddress(interface_option));
+            
+            ClientResponse response = webResourceClient.type(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON).post(ClientResponse.class, serviceJson);
+            
+    		boolean success = (response.getStatusInfo().getFamily() == Response.Status.Family.SUCCESSFUL);
+    		           
+    		if (success) {
+    			return success;
+    		} else {
+    			String error = response.getStatusInfo().getReasonPhrase();
+    			throw new Exception("failed to register a service : status code: " + response.getStatusInfo().getStatusCode() + " - reason: " + error);
+    		}
+    		  
+        } catch (Exception e) {
+        	System.err.println("service catalog error: reason: " + e.getMessage());
+        	return false;
+		}	
     }
     
     public String getAllServices() {
@@ -60,31 +85,6 @@ public class ServiceCatalogClient
         } catch (Exception e) {
         	System.err.println("service catalog error: reason: " + e.getMessage());	
         	return null;
-		}	
-    }
-    
-    public boolean registerService(String serviceJson) {
-    	
-    	try {
-    		
-    		String interface_option = PATH + "/";
-    		
-            WebResource webResourceClient = client.resource(this.getAddress(interface_option));
-            
-            ClientResponse response = webResourceClient.type(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON).post(ClientResponse.class, serviceJson);
-            
-    		boolean success = (response.getStatusInfo().getFamily() == Response.Status.Family.SUCCESSFUL);
-    		           
-    		if (success) {
-    			return success;
-    		} else {
-    			String error = response.getStatusInfo().getReasonPhrase();
-    			throw new Exception("failed to register a service : status code: " + response.getStatusInfo().getStatusCode() + " - reason: " + error);
-    		}
-    		  
-        } catch (Exception e) {
-        	System.err.println("service catalog error: reason: " + e.getMessage());
-        	return false;
 		}	
     }
     

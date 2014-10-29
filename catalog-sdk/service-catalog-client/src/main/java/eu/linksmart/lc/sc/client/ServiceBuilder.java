@@ -1,4 +1,4 @@
-package eu.linksmart.lc.rc.client;
+package eu.linksmart.lc.sc.client;
 
 import java.io.File;
 import java.io.FileReader;
@@ -9,17 +9,16 @@ import java.util.List;
 
 import com.google.gson.Gson;
 
-import eu.linksmart.lc.rc.types.Endpoint;
-import eu.linksmart.lc.rc.types.Protocol;
-import eu.linksmart.lc.rc.types.Registration;
-import eu.linksmart.lc.rc.types.Representation;
-import eu.linksmart.lc.rc.types.Resource;
-import eu.linksmart.lc.rc.types.TextPlain;
+import eu.linksmart.lc.sc.types.Endpoint;
+import eu.linksmart.lc.sc.types.Protocol;
+import eu.linksmart.lc.sc.types.Registration;
+import eu.linksmart.lc.sc.types.Representation;
+import eu.linksmart.lc.sc.types.TextPlain;
 
-public class DeviceBuilder {
+public class ServiceBuilder {
 	
 	public static Registration createRegistration(String jsonFileName) {
-		Reader reader = new InputStreamReader(DeviceBuilder.class.getResourceAsStream(jsonFileName));
+		Reader reader = new InputStreamReader(ServiceBuilder.class.getResourceAsStream(jsonFileName));
 		Registration registration = new Gson().fromJson(reader, Registration.class);
 		return registration;
 	}
@@ -38,21 +37,16 @@ public class DeviceBuilder {
 	}
 	
 	/*
-	 * creates a device registration for given ID & Name with one resource for protocol type REST 
+	 * creates a service registration for given ID & Name with default protocol type REST 
 	 */
-	public static Registration createRegistration(String deviceID, String deviceName, String resourceID, String resourceName, String URL) {
+	public static Registration createRegistration(String serviceID, String serviceName, String URL) {
 		
 		Registration registration = new Registration();
-		registration.setId(deviceID);
-		registration.setType("Device");
-		registration.setName(deviceName);
-		registration.setDescription(deviceID + "description");
+		registration.setId(serviceID);
+		registration.setType("Service");
+		registration.setName(serviceName);
+		registration.setDescription(serviceID + "description");
 		registration.setTtl(30);
-		
-		Resource resource = new Resource();
-		resource.setId(resourceID);
-		resource.setType("Resource");
-		resource.setName(resourceName);
 		
 		Protocol protocol = new Protocol();
 		protocol.setType("REST");
@@ -71,17 +65,13 @@ public class DeviceBuilder {
 		
 		List<Protocol> protocolList = new ArrayList<Protocol>();
 		protocolList.add(protocol);
-		resource.setProtocols(protocolList);
+		registration.setProtocols(protocolList);
 		
 		Representation representation = new Representation();
 		TextPlain repre = new TextPlain();
 		repre.setType("string");
 		representation.setTextPlain(repre);
-		resource.setRepresentation(representation);
-		
-		List<Resource> resources = new ArrayList<Resource>();
-		resources.add(resource);
-		registration.setResources(resources);
+		registration.setRepresentation(representation);
 		
 		return registration;
 	}

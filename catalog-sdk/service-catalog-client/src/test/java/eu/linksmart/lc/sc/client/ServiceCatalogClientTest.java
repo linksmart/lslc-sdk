@@ -9,14 +9,13 @@ import org.junit.Test;
 
 public class ServiceCatalogClientTest {
 	
-	private String BASE_URL = "http://gando.fit.fraunhofer.de:8091";
+	private String BASE_URL = "http://gando.fit.fraunhofer.de:8090";
 	
 	@Test
 	public void testCatalogClient() {
 		
-		String deviceJson = readFileContents("/registration.json");
-		
-		assertTrue(ServiceCatalogClient.getInstance(BASE_URL).registerService(deviceJson));
+		String serviceJson = readFileContents("/registration.json");
+		assertTrue(ServiceCatalogClient.getInstance(BASE_URL).registerService(serviceJson));
 		
 		String result_gc = ServiceCatalogClient.getInstance(BASE_URL).getService("sc/testserver/broker");
 		assertNotNull(result_gc);
