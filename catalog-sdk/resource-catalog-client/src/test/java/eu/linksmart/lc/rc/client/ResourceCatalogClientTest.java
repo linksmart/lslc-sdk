@@ -11,7 +11,7 @@ import eu.linksmart.lc.rc.client.ResourceCatalogClient;
 
 public class ResourceCatalogClientTest {
 	
-	private String BASE_URL = "http://gando.fit.fraunhofer.de:8091";
+	private String BASE_URL = "http://gando.fit.fraunhofer.de:8091/rc";
 	
 	@Test
 	public void testCatalogClient() {

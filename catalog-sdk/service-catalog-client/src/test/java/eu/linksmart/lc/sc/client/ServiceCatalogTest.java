@@ -15,22 +15,24 @@ public class ServiceCatalogTest {
 	@Test
 	public void testTypesBinding() {
 		
-		Registration registration = ServiceBuilder.createRegistration("sc/testserver/broker-b", "MqttBroker-b", "tcp://testserver.com:1883");
+		Registration registration = ServiceBuilder.createRegistration("testserver", "MqttBroker-b", "tcp://testserver.com:1883");
 		System.out.println("Gson generated registration json: " + new Gson().toJson(registration));
 		
 		assertTrue(ServiceCatalog.registerService(registration));
 		
-		assertTrue(ServiceCatalog.updateService("sc/testserver/broker-b", registration));
+		String serviceID = registration.getId();
+		
+		assertTrue(ServiceCatalog.updateService(serviceID, registration));
 		
 		SCatalog catalog = ServiceCatalog.getAllServices();
 		System.out.println("total services: " + catalog.getServices().size());
 		
-		Service service = ServiceCatalog.getService("sc/testserver/broker-b");
+		Service service = ServiceCatalog.getService(serviceID);
 		System.out.println("get-service-name: " + service.getName());
 		
 		Service searched_service = ServiceCatalog.search("service", "name", Comparison.EQUALS.getCriteria(), "MqttBroker");
 		System.out.println("searched-service-name: " + searched_service.getName());
 		
-		assertTrue(ServiceCatalog.deleteService("sc/testserver/broker-b"));
+		assertTrue(ServiceCatalog.deleteService(serviceID));
 	}
 }

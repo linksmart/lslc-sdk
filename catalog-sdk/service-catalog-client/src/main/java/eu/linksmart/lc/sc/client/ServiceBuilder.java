@@ -39,9 +39,12 @@ public class ServiceBuilder {
 	/*
 	 * creates a service registration for given ID & Name with default protocol type REST 
 	 */
-	public static Registration createRegistration(String serviceID, String serviceName, String URL) {
+	public static Registration createRegistration(String serverID, String serviceName, String URL) {
 		
 		Registration registration = new Registration();
+		
+		String serviceID = serverID + "/" + serviceName;
+		
 		registration.setId(serviceID);
 		registration.setType("Service");
 		registration.setName(serviceName);

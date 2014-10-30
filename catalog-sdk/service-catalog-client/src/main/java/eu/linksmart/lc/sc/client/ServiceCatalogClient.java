@@ -10,9 +10,7 @@ import javax.ws.rs.core.Response;
 public class ServiceCatalogClient
 {
 	
-	private String BASE_URL = "http://localhost:8080";
-	
-	private final String PATH = "sc";
+	private String BASE_URL = "http://localhost:8080/sc";
 	
     private Client client;
     
@@ -38,7 +36,7 @@ public class ServiceCatalogClient
     	
     	try {
     		
-    		String interface_option = PATH + "/";
+    		String interface_option = "";
     		
             WebResource webResourceClient = client.resource(this.getAddress(interface_option));
             
@@ -65,9 +63,7 @@ public class ServiceCatalogClient
     		
     		String responseString;
     		
-    		String interface_option = PATH;
-    		
-            WebResource webResourceClient = client.resource(this.getAddress(interface_option));
+            WebResource webResourceClient = client.resource(this.BASE_URL);
             
             ClientResponse response = webResourceClient.type(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON).get(ClientResponse.class);
             
@@ -94,7 +90,7 @@ public class ServiceCatalogClient
     		
     		String responseString;
     		
-    		String interface_option = PATH + "/" + serviceID;
+    		String interface_option = serviceID;
     		
             WebResource webResourceClient = client.resource(this.getAddress(interface_option));
             
@@ -121,7 +117,7 @@ public class ServiceCatalogClient
     	
     	try {
     		
-    		String interface_option = PATH + "/" + serviceID;
+    		String interface_option = serviceID;
     		
             WebResource webResourceClient = client.resource(this.getAddress(interface_option));
             
@@ -146,7 +142,7 @@ public class ServiceCatalogClient
     	
     	try {
     		
-    		String interface_option = PATH + "/" + serviceID;
+    		String interface_option = serviceID;
     		
             WebResource webResourceClient = client.resource(this.getAddress(interface_option));
             
@@ -173,7 +169,7 @@ public class ServiceCatalogClient
     		
     		String responseString;
     		
-    		String interface_option = PATH + "/" + type + "/" + path + "/" + comparisonCriteria + "/" + value;
+    		String interface_option = type + "/" + path + "/" + comparisonCriteria + "/" + value;
     		
             WebResource webResourceClient = client.resource(this.getAddress(interface_option));
             

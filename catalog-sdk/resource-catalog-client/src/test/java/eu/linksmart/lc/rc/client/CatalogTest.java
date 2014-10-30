@@ -26,13 +26,16 @@ public class CatalogTest {
 	@Test
 	public void testTypesBinding() {
 		
-		Registration registration = DeviceBuilder.createRegistration("testdc/device-b", "device-b", "testdc/device-b/resource-b", "resource-b", "http://localhost:8080/");
+		Registration registration = DeviceBuilder.createRegistration("testdc", "device-b", "resource-b", "http://localhost:8080/");
 		
 		System.out.println("Gson generated registration json: " + new Gson().toJson(registration));
 		
+		String deviceID = registration.getId();
+		String resourceID = registration.getResources().get(0).getId();
+		
 		assertTrue(ResourceCatalog.registerDevice(registration));
 		
-		assertTrue(ResourceCatalog.updateDevice("testdc/device-b", registration));
+		assertTrue(ResourceCatalog.updateDevice(deviceID, registration));
 		
 		Catalog catalog = ResourceCatalog.getAllDevices();
 		System.out.println("total devices: " + catalog.getDevices().size() + " - total resources: " + catalog.getResources().size());
@@ -42,16 +45,16 @@ public class CatalogTest {
             System.out.println("device id: " + device.getId());
 		}
 		
-		Device device = ResourceCatalog.getDevice("testdc/device-b");
+		Device device = ResourceCatalog.getDevice(deviceID);
 		System.out.println("get-device-name: " + device.getName());
 		
-		Resource resource = ResourceCatalog.getResource("testdc/device-b/resource-b");
+		Resource resource = ResourceCatalog.getResource(resourceID);
 		System.out.println("get-resource-name: " + resource.getName());
 		
 		Resource searched_resource = ResourceCatalog.search("name", Comparison.EQUALS.getCriteria(), "resource-b");
 		System.out.println("searched-resource-name: " + searched_resource.getName());
 		
-		assertTrue(ResourceCatalog.deleteDevice("testdc/device-b"));
+		assertTrue(ResourceCatalog.deleteDevice(deviceID));
 	}
 	
 	private Registration createRegistration() {

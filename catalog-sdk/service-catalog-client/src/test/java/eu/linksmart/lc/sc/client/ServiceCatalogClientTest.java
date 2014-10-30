@@ -9,7 +9,7 @@ import org.junit.Test;
 
 public class ServiceCatalogClientTest {
 	
-	private String BASE_URL = "http://gando.fit.fraunhofer.de:8090";
+	private String BASE_URL = "http://gando.fit.fraunhofer.de:8090/sc";
 	
 	@Test
 	public void testCatalogClient() {
@@ -17,7 +17,7 @@ public class ServiceCatalogClientTest {
 		String serviceJson = readFileContents("/registration.json");
 		assertTrue(ServiceCatalogClient.getInstance(BASE_URL).registerService(serviceJson));
 		
-		String result_gc = ServiceCatalogClient.getInstance(BASE_URL).getService("sc/testserver/broker");
+		String result_gc = ServiceCatalogClient.getInstance(BASE_URL).getService("testserver/broker");
 		assertNotNull(result_gc);
 		System.out.println("get-service: " + result_gc);
 		
@@ -27,13 +27,13 @@ public class ServiceCatalogClientTest {
 		
 		String updatedServiceJson = readFileContents("/update-registration.json");
 		
-		assertTrue(ServiceCatalogClient.getInstance(BASE_URL).updateService("sc/testserver/broker", updatedServiceJson));
+		assertTrue(ServiceCatalogClient.getInstance(BASE_URL).updateService("testserver/broker", updatedServiceJson));
 		
-		String result_updated_gs = ServiceCatalogClient.getInstance(BASE_URL).getService("sc/testserver/broker-2");
+		String result_updated_gs = ServiceCatalogClient.getInstance(BASE_URL).getService("testserver/broker");
 		assertNotNull(result_updated_gs);
 		System.out.println("get-updated_service: " + result_updated_gs);
 		
-		assertTrue(ServiceCatalogClient.getInstance(BASE_URL).deleteService("sc/testserver/broker-2"));
+		assertTrue(ServiceCatalogClient.getInstance(BASE_URL).deleteService("testserver/broker"));
 		
 	}
 	

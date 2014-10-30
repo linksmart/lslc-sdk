@@ -18,6 +18,6 @@ public class DeviceBuilderTest {
 		File jsonFile = new File((this.getClass().getResource(("/registration.json")).getFile()));
 		assertNotNull(DeviceBuilder.createRegistration(jsonFile));
 		
-		assertNotNull(DeviceBuilder.createRegistration("testdc/device-b", "device-b", "testdc/device-b/resource-b", "resource-b", "http://localhost:8080/"));	
+		assertNotNull(DeviceBuilder.createRegistration("testdc", "device-b", "resource-b", "http://localhost:8080/"));	
 	}
 }

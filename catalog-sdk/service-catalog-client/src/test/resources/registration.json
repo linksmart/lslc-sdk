@@ -1,5 +1,5 @@
 {
-    "id": "sc/testserver/broker",
+    "id": "testserver/broker",
     "type": "Service",
     "name": "MqttBroker",
     "description": "Demo MQTT Broker",

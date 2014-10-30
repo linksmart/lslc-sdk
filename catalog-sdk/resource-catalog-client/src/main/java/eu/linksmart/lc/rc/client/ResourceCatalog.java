@@ -13,7 +13,7 @@ public class ResourceCatalog {
 	
 	public static final String TYPE_RESOURCE = "resource";
 	
-	private static String BASE_URL = "http://gando.fit.fraunhofer.de:8091";
+	private static String BASE_URL = "http://gando.fit.fraunhofer.de:8091/rc";
 	
 	static {
 		BASE_URL = ConfigurationProvider.getString( "eu.linksmart.lc.rc.url" ); //$NON-NLS-1$;

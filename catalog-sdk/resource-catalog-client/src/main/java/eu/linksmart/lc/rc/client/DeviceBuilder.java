@@ -40,14 +40,19 @@ public class DeviceBuilder {
 	/*
 	 * creates a device registration for given ID & Name with one resource for protocol type REST 
 	 */
-	public static Registration createRegistration(String deviceID, String deviceName, String resourceID, String resourceName, String URL) {
+	public static Registration createRegistration(String deviceConnectorID, String deviceName, String resourceName, String URL) {
 		
 		Registration registration = new Registration();
+		
+		String deviceID = deviceConnectorID + "/" + deviceName;
+		
 		registration.setId(deviceID);
 		registration.setType("Device");
 		registration.setName(deviceName);
 		registration.setDescription(deviceID + "description");
 		registration.setTtl(30);
+		
+		String resourceID = deviceID + "/" + resourceName;
 		
 		Resource resource = new Resource();
 		resource.setId(resourceID);

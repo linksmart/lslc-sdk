@@ -8,7 +8,7 @@
 
 - set URL of the catalog service as follows:
 
-	ResourceCatalog.setURL("http://hostname:port");
+	ResourceCatalog.setURL("http://hostname:port/base_path");
 
 - use DeviceBuilder class to get Registration object that will be used to create device registration into resource catalog:
 
@@ -16,7 +16,7 @@
 		Registration registration = DeviceBuilder.createRegistration(String jsonFileName)
 	or
 	create a device registration for given ID & Name with one resource for protocol type REST
-		Registration registration = DeviceBuilder.createRegistration(String deviceID, String deviceName, String resourceID, String resourceName, String URL)
+		Registration registration = DeviceBuilder.createRegistration(String deviceConnectorID, String deviceName, String resourceName, String URL)
 		
 - to get all registered devices
 	Catalog catalog = ResourceCatalog.getAllDevices()
