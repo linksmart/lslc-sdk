@@ -33,92 +33,9 @@ public class DeviceManagementClient implements IDeviceManagement {
     @Override
     public String add(LSLCDevice aDevice) {
 
-//        String hostID = "JavaRegistrationClient";
         String registrationID = hostID+"/"+aDevice.name;
 
-        int totalResources = aDevice.resources.size();
-
-        // create root registration document
-        JsonObject aRegistration = new JsonObject();
-        aRegistration.addProperty("id",registrationID);
-        aRegistration.addProperty("type",aDevice.type);
-        aRegistration.addProperty("name",aDevice.name);
-        aRegistration.addProperty("description",aDevice.description);
-        aRegistration.addProperty("ttl",aDevice.ttl);
-
-        // create empty array of  resources
-        JsonArray resourcesArray = new JsonArray();
-
-
-        // iterate over all resources from device
-
-        for(int i=0; i < totalResources; i++) {
-            // create root resource document
-            JsonObject aResource = new JsonObject();
-            // add simple types to JSON resource representation
-            aResource.addProperty("id", registrationID + "/" + UUID.randomUUID().toString());
-            aResource.addProperty("type", aDevice.resources.get(i).type);
-            aResource.addProperty("name", aDevice.resources.get(i).name);
-            //aResource.addProperty("device", aDevice.resources.get(i).device);
-
-
-            // create array of protocols
-            JsonArray resourceProtocolArray = new JsonArray();
-            // interate over all protocols from device
-            for(int j=0; j < aDevice.resources.get(i).protocols.size(); j++ ) {
-                // create one protocol item
-                JsonObject protocol = new JsonObject();
-                protocol.addProperty("type", aDevice.resources.get(i).protocols.get(j).type);
-
-                JsonObject endpoint = new JsonObject();
-                //endpoint.addProperty("url", aDevice.resources.get(i).protocols.get(j).endpoint.toString());
-
-                // add fancy super generic "URIs" called brokers for alien hardware from hell
-                for(Map.Entry<String, String> entry : aDevice.resources.get(i).protocols.get(j).endpoint.entrySet()){
-                    endpoint.addProperty(entry.getKey(), entry.getValue());
-                }
-
-                protocol.add("endpoint", endpoint);
-
-                JsonArray methods = new JsonArray();
-                // interate over all possible protocol methods
-                for(int z=0; z < aDevice.resources.get(i).protocols.get(j).methods.size(); z++) {
-                    JsonObject method = new JsonObject();
-                    JsonPrimitive item = new JsonPrimitive(aDevice.resources.get(i).protocols.get(j).methods.get(z));
-                    methods.add(item);
-                    protocol.add("methods", methods);
-                }
-
-
-                JsonArray contentTypes = new JsonArray();
-                // iterate over all possible content types of given protocol
-                for(int z=0; z < aDevice.resources.get(i).protocols.get(j).contentTypes.size(); z++ ) {
-                    JsonPrimitive contentType = new JsonPrimitive(aDevice.resources.get(i).protocols.get(j).contentTypes.get(0).toString());
-                    contentTypes.add(contentType);
-                    protocol.add("content-types", contentTypes);
-                }
-
-                // add protocol to protocol array
-                resourceProtocolArray.add(protocol);
-                // add protocol array to root document
-                aResource.add("protocols", resourceProtocolArray);
-            }
-
-            // create representation document . WTF quite complex type with double layer. SIMPLIFY !
-            JsonObject representation = new JsonObject();
-            JsonObject textPlain = new JsonObject();
-            textPlain.addProperty("type", aDevice.resources.get(i).representation.type);
-            representation.add(aDevice.resources.get(i).representation.contentType.toString(), textPlain);
-            aResource.add("representation", representation);
-
-
-            resourcesArray.add(aResource);
-        }
-
-        aRegistration.add("resources",resourcesArray);
-
-
-        String payload = aRegistration.toString();
+        String payload = createRegistrationPayload(aDevice,registrationID);
 
         // try to register device inside ResourceCatalog
         String registerEndpoint = ResourceCatalogEndpoint+"/";
@@ -127,7 +44,6 @@ public class DeviceManagementClient implements IDeviceManagement {
             connection.setDoInput(true);
             connection.setDoOutput(true);
             connection.setRequestMethod("POST");
-            //connection.setRequestProperty("Accept", "application/ld+json");
             connection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8");
             OutputStreamWriter writer = new OutputStreamWriter(connection.getOutputStream(), "UTF-8");
             writer.write(payload);
@@ -158,7 +74,6 @@ public class DeviceManagementClient implements IDeviceManagement {
     public boolean delete(String deviceID) {
 
         String deleteEndpoint = ResourceCatalogEndpoint.toString()+"/"+deviceID;
-        // try to register device inside ResourceCatalog
         try {
             HttpURLConnection connection = (HttpURLConnection) new URL(deleteEndpoint).openConnection();
             connection.setDoInput(true);
@@ -178,93 +93,9 @@ public class DeviceManagementClient implements IDeviceManagement {
     @Override
     public boolean update(LSLCDevice aDevice, String aDeviceID) {
 
-
-
         String updateEndpoint = ResourceCatalogEndpoint.toString()+"/"+aDeviceID;
-        // try to register device inside ResourceCatalog
-//        String hostID = "JavaRegistrationClient";
 
-        int totalResources = aDevice.resources.size();
-
-        // create root registration document
-        JsonObject aRegistration = new JsonObject();
-        aRegistration.addProperty("id",aDeviceID);
-        aRegistration.addProperty("type",aDevice.type);
-        aRegistration.addProperty("name",aDevice.name);
-        aRegistration.addProperty("description",aDevice.description);
-        aRegistration.addProperty("ttl",aDevice.ttl);
-
-        // create empty array of  resources
-        JsonArray resourcesArray = new JsonArray();
-
-
-        // iterate over all resources from device
-
-        for(int i=0; i < totalResources; i++) {
-            // create root resource document
-            JsonObject aResource = new JsonObject();
-            // add simple types to JSON resource representation
-            aResource.addProperty("id", hostID + "/" + aDevice.name + "/" + UUID.randomUUID().toString());
-            aResource.addProperty("type", aDevice.resources.get(i).type);
-            aResource.addProperty("name", aDevice.resources.get(i).name);
-            //aResource.addProperty("device", aDevice.resources.get(i).device);
-
-
-            // create array of protocols
-            JsonArray resourceProtocolArray = new JsonArray();
-            // interate over all protocols from device
-            for(int j=0; j < aDevice.resources.get(i).protocols.size(); j++ ) {
-                // create one protocol item
-                JsonObject protocol = new JsonObject();
-                protocol.addProperty("type", aDevice.resources.get(i).protocols.get(j).type);
-
-                JsonObject endpoint = new JsonObject();
-                // add fancy super generic "URIs" called brokers for alien hardware from hell
-                for(Map.Entry<String, String> entry : aDevice.resources.get(i).protocols.get(j).endpoint.entrySet()){
-                    endpoint.addProperty(entry.getKey(), entry.getValue());
-                }
-
-                protocol.add("endpoint", endpoint);
-
-                JsonArray methods = new JsonArray();
-                // interate over all possible protocol methods
-                for(int z=0; z < aDevice.resources.get(i).protocols.get(j).methods.size(); z++) {
-                    JsonObject method = new JsonObject();
-                    JsonPrimitive item = new JsonPrimitive(aDevice.resources.get(i).protocols.get(j).methods.get(z));
-                    methods.add(item);
-                    protocol.add("methods", methods);
-                }
-
-
-                JsonArray contentTypes = new JsonArray();
-                // iterate over all possible content types of given protocol
-                for(int z=0; z < aDevice.resources.get(i).protocols.get(j).contentTypes.size(); z++ ) {
-                    JsonPrimitive contentType = new JsonPrimitive(aDevice.resources.get(i).protocols.get(j).contentTypes.get(0).toString());
-                    contentTypes.add(contentType);
-                    protocol.add("content-types", contentTypes);
-                }
-
-                // add protocol to protocol array
-                resourceProtocolArray.add(protocol);
-                // add protocol array to root document
-                aResource.add("protocols", resourceProtocolArray);
-            }
-
-            // create representation document . WTF quite complex type with double layer. SIMPLIFY !
-            JsonObject representation = new JsonObject();
-            JsonObject textPlain = new JsonObject();
-            textPlain.addProperty("type", aDevice.resources.get(i).representation.type);
-            representation.add(aDevice.resources.get(i).representation.contentType.toString(), textPlain);
-            aResource.add("representation", representation);
-
-
-            resourcesArray.add(aResource);
-        }
-
-        aRegistration.add("resources",resourcesArray);
-
-
-        String payload = aRegistration.toString();
+        String payload = createRegistrationPayload(aDevice, aDeviceID);
 
 
         // try to update device inside ResourceCatalog
@@ -273,7 +104,6 @@ public class DeviceManagementClient implements IDeviceManagement {
             connection.setDoInput(true);
             connection.setDoOutput(true);
             connection.setRequestMethod("PUT");
-            //connection.setRequestProperty("Accept", "application/ld+json");
             connection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8");
             OutputStreamWriter writer = new OutputStreamWriter(connection.getOutputStream(), "UTF-8");
             writer.write(payload);
@@ -513,9 +343,91 @@ public class DeviceManagementClient implements IDeviceManagement {
         // return empty list
         return new ArrayList<LSLCDevice>();
     }
+    public String createRegistrationPayload(LSLCDevice aDevice, String aDeviceID){
+
+        int totalResources = aDevice.resources.size();
+
+        // create root registration document
+        JsonObject aRegistration = new JsonObject();
+        aRegistration.addProperty("id",aDeviceID);
+        aRegistration.addProperty("type",aDevice.type);
+        aRegistration.addProperty("name",aDevice.name);
+        aRegistration.addProperty("description",aDevice.description);
+        aRegistration.addProperty("ttl",aDevice.ttl);
+
+        // create empty array of  resources
+        JsonArray resourcesArray = new JsonArray();
+
+
+        // iterate over all resources from device
+
+        for(int i=0; i < totalResources; i++) {
+            // create root resource document
+            JsonObject aResource = new JsonObject();
+            // add simple types to JSON resource representation
+            aResource.addProperty("id", hostID + "/" + aDevice.name + "/" + UUID.randomUUID().toString());
+            aResource.addProperty("type", aDevice.resources.get(i).type);
+            aResource.addProperty("name", aDevice.resources.get(i).name);
+            //aResource.addProperty("device", aDevice.resources.get(i).device);
+
+
+            // create array of protocols
+            JsonArray resourceProtocolArray = new JsonArray();
+            // interate over all protocols from device
+            for(int j=0; j < aDevice.resources.get(i).protocols.size(); j++ ) {
+                // create one protocol item
+                JsonObject protocol = new JsonObject();
+                protocol.addProperty("type", aDevice.resources.get(i).protocols.get(j).type);
+
+                JsonObject endpoint = new JsonObject();
+                // add fancy super generic "URIs" called brokers for alien hardware from hell
+                for(Map.Entry<String, String> entry : aDevice.resources.get(i).protocols.get(j).endpoint.entrySet()){
+                    endpoint.addProperty(entry.getKey(), entry.getValue());
+                }
+
+                protocol.add("endpoint", endpoint);
+
+                JsonArray methods = new JsonArray();
+                // interate over all possible protocol methods
+                for(int z=0; z < aDevice.resources.get(i).protocols.get(j).methods.size(); z++) {
+                    JsonObject method = new JsonObject();
+                    JsonPrimitive item = new JsonPrimitive(aDevice.resources.get(i).protocols.get(j).methods.get(z));
+                    methods.add(item);
+                    protocol.add("methods", methods);
+                }
+
+
+                JsonArray contentTypes = new JsonArray();
+                // iterate over all possible content types of given protocol
+                for(int z=0; z < aDevice.resources.get(i).protocols.get(j).contentTypes.size(); z++ ) {
+                    JsonPrimitive contentType = new JsonPrimitive(aDevice.resources.get(i).protocols.get(j).contentTypes.get(0).toString());
+                    contentTypes.add(contentType);
+                    protocol.add("content-types", contentTypes);
+                }
+
+                // add protocol to protocol array
+                resourceProtocolArray.add(protocol);
+                // add protocol array to root document
+                aResource.add("protocols", resourceProtocolArray);
+            }
+
+            // create representation document . WTF quite complex type with double layer. SIMPLIFY !
+            JsonObject representation = new JsonObject();
+            JsonObject textPlain = new JsonObject();
+            textPlain.addProperty("type", aDevice.resources.get(i).representation.type);
+            representation.add(aDevice.resources.get(i).representation.contentType.toString(), textPlain);
+            aResource.add("representation", representation);
+
+
+            resourcesArray.add(aResource);
+        }
+
+        aRegistration.add("resources",resourcesArray);
+        return aRegistration.toString();
+
+
+    }
     public String getRawData(URL restResource) throws IOException {
-
-
 
         HttpURLConnection connection = (HttpURLConnection) restResource.openConnection();
         connection.setDoInput(true);
