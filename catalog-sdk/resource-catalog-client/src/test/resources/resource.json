@@ -1,0 +1,16 @@
+{
+  "id": "123",
+  "type": "Resource",
+  "name": "resource-1",
+  "meta": {},
+  "protocols": [
+     {
+        "type": "test-type",
+        "endpoint": {},
+        "methods": [],
+        "content-types": []
+     }
+  ],
+  "representation": {},
+  "device": "device-1"
+ }
