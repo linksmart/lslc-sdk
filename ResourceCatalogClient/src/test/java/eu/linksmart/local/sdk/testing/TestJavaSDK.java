@@ -1,11 +1,11 @@
 package eu.linksmart.local.sdk.testing;
 
-import eu.linksmart.local.sdk.*;
+import eu.linksmart.local.sdk.LSLCDevice;
+import eu.linksmart.local.sdk.LSLCProtocol;
+import eu.linksmart.local.sdk.LSLCRepresentation;
+import eu.linksmart.local.sdk.LSLCResource;
+import eu.linksmart.local.sdk.clients.DeviceManagementClient;
 import org.junit.Before;
-<<<<<<< HEAD
-import org.junit.Ignore;
-=======
->>>>>>> 2e284a4ed2fe4d1acd38c469162ed3534557f0d1
 import org.junit.Test;
 
 import javax.mail.internet.ContentType;
@@ -14,14 +14,10 @@ import java.net.InetAddress;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.UnknownHostException;
-<<<<<<< HEAD
-=======
 import java.util.List;
->>>>>>> 2e284a4ed2fe4d1acd38c469162ed3534557f0d1
 import java.util.UUID;
 
-import static junit.framework.Assert.assertEquals;
-import static junit.framework.Assert.assertTrue;
+import static junit.framework.Assert.*;
 
 /**
  * Created by carlos on 27.10.14.
@@ -30,10 +26,7 @@ public class TestJavaSDK {
 
     public LSLCDevice device;
     public String deviceID;
-<<<<<<< HEAD
-=======
     DeviceManagementClient client;
->>>>>>> 2e284a4ed2fe4d1acd38c469162ed3534557f0d1
 
     @Before
     public void setupDeviceRegistrationDocument() throws MalformedURLException, ParseException {
@@ -76,11 +69,6 @@ public class TestJavaSDK {
 
         device.resources.add(resource);
 
-<<<<<<< HEAD
-    }
-
-    @Ignore
-=======
         //client = new DeviceManagementClient(new URL("http://localhost:7778/rc"));
         client = new DeviceManagementClient(new URL("http://gando.fit.fraunhofer.de:8091/rc"));
 
@@ -88,66 +76,36 @@ public class TestJavaSDK {
     }
 
     @Test
->>>>>>> 2e284a4ed2fe4d1acd38c469162ed3534557f0d1
-    public void testRemoteRegistrationAndUnregistration() throws MalformedURLException {
+    public void testRemoteRegistrationAndUnregistration() throws MalformedURLException, InterruptedException {
 
-        // register device with RC
+        // register device to RC
 
+        String regID = client.add(device);
 
-        assertTrue("could not register device", client.registerDevice(device));
+        assertNotNull("could not register device",regID);
 
-        // unregister device from RC
+        // update device registered to RC
 
-        assertTrue("could not remove ",client.removeDevice(deviceID));
+        System.out.println("device registered.");
+        System.out.println("registration ID: "+regID);
+
+        assertTrue("could not update device",client.update(device, regID));
+        System.out.println("device updated.");
+
+        assertTrue("could not remove ", client.delete(regID));
 
 
 
     }
 
     @Test
-    public void getDeviceByID() throws MalformedURLException {
+    public void getDeviceByID() throws MalformedURLException, InterruptedException {
 
 
-        assertTrue("could not register device", client.registerDevice(device));
+        String regID = client.add(device);
 
-        // unregister device from RC
-
-        assertTrue("could not remove ",client.removeDevice(deviceID));
-
-
-
-    }
-
-    @Ignore
-    public void getDeviceFromRC() throws MalformedURLException {
-
-        //DeviceManagementClient client = new DeviceManagementClient(new URL("http://localhost:7778/rc/"));
-        DeviceManagementClient client = new DeviceManagementClient(new URL("http://gando.fit.fraunhofer.de:8091/rc/"));
-
-        client.registerDevice(device);
-
-<<<<<<< HEAD
-        client.getDevice(deviceID);
-
-        // test one field
-        assertEquals(device.resources.get(0).protocols.get(0).methods.get(0),"GET");
-
-        client.removeDevice(deviceID);
-
-
-
-    }
-    
-    @Test
-    public void getAllDevicesFromRC() throws MalformedURLException {
-
-        DeviceManagementClient client = new DeviceManagementClient(new URL("http://localhost:7778/rc/"));
-        client.registerDevice(device);
-        LSLCDevice devices = client.getAllDevices();
-        
-=======
-        LSLCDevice deviceFromRC = client.getDevice(deviceID);
-        client.removeDevice(deviceID);
+        LSLCDevice deviceFromRC = client.get(regID);
+        client.delete(regID);
 
         // test if all fields were retrieved properly
         assertTrue("returned device not equal to original one", isRetrivedInstanceIdentical(deviceFromRC));
@@ -161,19 +119,16 @@ public class TestJavaSDK {
     public void getAllDevicesFromRC() throws MalformedURLException {
 
 
-        client.registerDevice(device);
+        String regID = client.add(device);
 
         List<LSLCDevice> devices = client.getAllDevices();
 
-        client.removeDevice(deviceID);
-
-
-        //assertEquals("should return one device ",1,devices.size());
+        client.delete(regID);
 
         // TODO look up for "my test" device. since the RC changed the ID a workaround is needed. fuuuUU
         for(int i=0; i < devices.size();i++){
             LSLCDevice d = devices.get(i);
-            if(d.id.equalsIgnoreCase("/rc"+deviceID)){
+            if(d.id.equalsIgnoreCase(regID)){
                 assertTrue("returned device not equal to original one",isRetrivedInstanceIdentical(d));
                 break;
             }
@@ -204,7 +159,7 @@ public class TestJavaSDK {
 
             // compare representation
             LSLCRepresentation retrievedRepresentation = retrievedDevice.resources.get(i).representation;
-            assertEquals(retrievedRepresentation.type,device.resources.get(i).representation.type);
+            assertEquals(retrievedRepresentation.type, device.resources.get(i).representation.type);
             assertEquals(retrievedRepresentation.contentType.toString(),device.resources.get(i).representation.contentType.toString());
 
             // compare protocols
@@ -230,7 +185,6 @@ public class TestJavaSDK {
         }
 
         return true;
->>>>>>> 2e284a4ed2fe4d1acd38c469162ed3534557f0d1
     }
 
 
