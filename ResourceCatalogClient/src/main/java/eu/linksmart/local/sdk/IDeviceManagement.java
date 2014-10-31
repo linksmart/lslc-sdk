@@ -8,4 +8,5 @@ public interface IDeviceManagement {
     public boolean registerDevice(LSLCDevice aDevice);
     public boolean removeDevice(String deviceID);
     public LSLCDevice getDevice(String deviceID);
+    public <List> java.util.ArrayList<LSLCDevice> getAllDevices();
 }

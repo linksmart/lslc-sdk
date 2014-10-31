@@ -1,29 +1,45 @@
 package eu.linksmart.local.sdk.testing;
 
 import eu.linksmart.local.sdk.*;
+import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import javax.mail.internet.ContentType;
 import javax.mail.internet.ParseException;
+import java.net.InetAddress;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.net.UnknownHostException;
 import java.util.UUID;
+
+import static junit.framework.Assert.assertEquals;
+import static junit.framework.Assert.assertTrue;
 
 /**
  * Created by carlos on 27.10.14.
  */
 public class TestJavaSDK {
 
-    @Test
-    public void testRemoteRegistration() throws ParseException, MalformedURLException {
-        //setup device class instance
+    public LSLCDevice device;
+    public String deviceID;
 
-        String deviceID = "test-dc/DeviceA";
+    @Before
+    public void setupDeviceRegistrationDocument() throws MalformedURLException, ParseException {
+        String hostID = "localhost";
+
+        try {
+            hostID = InetAddress.getLocalHost().getHostName();
+        } catch (UnknownHostException e) {
+            e.printStackTrace();
+        }
+
+        deviceID = hostID+"/DeviceA";
         UUID uuid = UUID.randomUUID();
 
         ContentType aContentType = new ContentType("text/plain");
 
-        LSLCDevice device = new LSLCDevice();
+        device = new LSLCDevice();
         device.name = new String("DeviceA");
         device.description = new String("Device registered from Java DeviceManagementClient");
         device.ttl = 60;
@@ -49,16 +65,52 @@ public class TestJavaSDK {
 
         device.resources.add(resource);
 
+    }
+
+    @Ignore
+    public void testRemoteRegistrationAndUnregistration() throws MalformedURLException {
 
         // register device with RC
 
         //DeviceManagementClient client = new DeviceManagementClient(new URL("http://localhost:7778/rc/"));
         DeviceManagementClient client = new DeviceManagementClient(new URL("http://gando.fit.fraunhofer.de:8091/rc/"));
 
+        assertTrue("could not register device", client.registerDevice(device));
+
+        // unregister device from RC
+
+        assertTrue("could not remove ",client.removeDevice(deviceID));
+
+
+
+    }
+
+    @Ignore
+    public void getDeviceFromRC() throws MalformedURLException {
+
+        //DeviceManagementClient client = new DeviceManagementClient(new URL("http://localhost:7778/rc/"));
+        DeviceManagementClient client = new DeviceManagementClient(new URL("http://gando.fit.fraunhofer.de:8091/rc/"));
+
         client.registerDevice(device);
 
+        client.getDevice(deviceID);
+
+        // test one field
+        assertEquals(device.resources.get(0).protocols.get(0).methods.get(0),"GET");
+
+        client.removeDevice(deviceID);
 
 
+
+    }
+    
+    @Test
+    public void getAllDevicesFromRC() throws MalformedURLException {
+
+        DeviceManagementClient client = new DeviceManagementClient(new URL("http://localhost:7778/rc/"));
+        client.registerDevice(device);
+        LSLCDevice devices = client.getAllDevices();
+        
     }
 
 
