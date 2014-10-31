@@ -300,19 +300,9 @@ public class DeviceManagementClient implements IDeviceManagement {
         String getEndpoint = ResourceCatalogEndpoint.toString()+"/"+deviceID;
         // try to retrieve device from ResourceCatalog
         try {
-            HttpURLConnection connection = (HttpURLConnection) new URL(getEndpoint).openConnection();
-            connection.setDoInput(true);
-            connection.setDoOutput(true);
-            connection.setRequestMethod("GET");
-            connection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8");
-            BufferedReader br = new BufferedReader(new InputStreamReader(connection.getInputStream()));
-            String line;
-            StringBuffer jsonString = new StringBuffer();
-            while ((line = br.readLine()) != null) {
-                jsonString.append(line);
-            }
-            br.close();
-            String deviceString = jsonString.toString();
+
+            String deviceString = getRawData(new URL(getEndpoint));
+
             JsonParser parser = new JsonParser();
             JsonElement parsedElement = parser.parse(deviceString);
 
@@ -383,8 +373,6 @@ public class DeviceManagementClient implements IDeviceManagement {
                 aDevice.resources.add(aResource);
             }
 
-            connection.disconnect();
-
             return aDevice;
 
         } catch (IOException e) {
@@ -400,23 +388,8 @@ public class DeviceManagementClient implements IDeviceManagement {
         String getAllDevicesEndpoint = ResourceCatalogEndpoint.toString();
         try {
 
-            // IO section starts
-            HttpURLConnection connection = (HttpURLConnection) new URL(getAllDevicesEndpoint).openConnection();
-            connection.setDoInput(true);
-            connection.setDoOutput(true);
-            connection.setRequestMethod("GET");
-            connection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8");
-            BufferedReader br = new BufferedReader(new InputStreamReader(connection.getInputStream()));
-            String line;
-            StringBuffer jsonString = new StringBuffer();
-            while ((line = br.readLine()) != null) {
-                jsonString.append(line);
-            }
-            br.close();
-            // IO section ends
-
             // parsing section starts
-            String deviceString = jsonString.toString();
+            String deviceString = getRawData(new URL(getAllDevicesEndpoint));
 
             JsonParser parser = new JsonParser();
             JsonElement parsedElement = parser.parse(deviceString);
@@ -539,6 +512,27 @@ public class DeviceManagementClient implements IDeviceManagement {
 
         // return empty list
         return new ArrayList<LSLCDevice>();
+    }
+    public String getRawData(URL restResource) throws IOException {
+
+
+
+        HttpURLConnection connection = (HttpURLConnection) restResource.openConnection();
+        connection.setDoInput(true);
+        connection.setDoOutput(true);
+        connection.setRequestMethod("GET");
+        connection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8");
+        BufferedReader br = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+        String line;
+        StringBuffer jsonString = new StringBuffer();
+        while ((line = br.readLine()) != null) {
+            jsonString.append(line);
+        }
+        br.close();
+        connection.disconnect();
+
+        return jsonString.toString();
+
     }
     // TODO workaround for RC bug. cutting of the /rc/
     private String applyIDFix(String buggyID){
