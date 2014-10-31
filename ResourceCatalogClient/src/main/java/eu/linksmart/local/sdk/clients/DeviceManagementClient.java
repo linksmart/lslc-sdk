@@ -71,7 +71,12 @@ public class DeviceManagementClient implements IDeviceManagement {
                 protocol.addProperty("type", aDevice.resources.get(i).protocols.get(j).type);
 
                 JsonObject endpoint = new JsonObject();
-                endpoint.addProperty("url", aDevice.resources.get(i).protocols.get(j).endpoint.toString());
+                //endpoint.addProperty("url", aDevice.resources.get(i).protocols.get(j).endpoint.toString());
+
+                // add fancy super generic "URIs" called brokers for alien hardware from hell
+                for(Map.Entry<String, String> entry : aDevice.resources.get(i).protocols.get(j).endpoint.entrySet()){
+                    endpoint.addProperty(entry.getKey(), entry.getValue());
+                }
 
                 protocol.add("endpoint", endpoint);
 
@@ -214,7 +219,10 @@ public class DeviceManagementClient implements IDeviceManagement {
                 protocol.addProperty("type", aDevice.resources.get(i).protocols.get(j).type);
 
                 JsonObject endpoint = new JsonObject();
-                endpoint.addProperty("url", aDevice.resources.get(i).protocols.get(j).endpoint.toString());
+                // add fancy super generic "URIs" called brokers for alien hardware from hell
+                for(Map.Entry<String, String> entry : aDevice.resources.get(i).protocols.get(j).endpoint.entrySet()){
+                    endpoint.addProperty(entry.getKey(), entry.getValue());
+                }
 
                 protocol.add("endpoint", endpoint);
 
@@ -296,11 +304,7 @@ public class DeviceManagementClient implements IDeviceManagement {
             connection.setDoInput(true);
             connection.setDoOutput(true);
             connection.setRequestMethod("GET");
-            //connection.setRequestProperty("Accept", "application/ld+json");
             connection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8");
-            //OutputStreamWriter writer = new OutputStreamWriter(connection.getOutputStream(), "UTF-8");
-            //writer.write(payload);
-            //writer.close();
             BufferedReader br = new BufferedReader(new InputStreamReader(connection.getInputStream()));
             String line;
             StringBuffer jsonString = new StringBuffer();
@@ -330,16 +334,16 @@ public class DeviceManagementClient implements IDeviceManagement {
                 // read simple types
                 aResource.name = resourceJSON.get("name").getAsString();
                 aResource.device = resourceJSON.get("device").getAsString();
-                aResource.id = resourceJSON.get("id").getAsString();
                 // read protocols from array
                 JsonArray protocolsJSON = resourceJSON.getAsJsonArray("protocols");
                 for(int j=0; j < protocolsJSON.size(); j++){
                     JsonObject protocolJSON = protocolsJSON.get(j).getAsJsonObject();
                     LSLCProtocol aProtocol = new LSLCProtocol();
                     // read simple types
-                    JsonObject urlJSON = protocolJSON.get("endpoint").getAsJsonObject();
-                    if(urlJSON.has("url")) {
-                        aProtocol.endpoint = new URL(urlJSON.get("url").getAsString());
+                    JsonObject endpointJSON = protocolJSON.get("endpoint").getAsJsonObject();
+                    Set<Map.Entry<String, JsonElement>> alienEndpoints = endpointJSON.entrySet();
+                    for(Map.Entry<String, JsonElement> entry : alienEndpoints) {
+                        aProtocol.endpoint.put(entry.getKey().toString(),entry.getValue().getAsString());
                     }
                     aProtocol.type = protocolJSON.get("type").getAsString();
                     // read methods from array
@@ -354,6 +358,7 @@ public class DeviceManagementClient implements IDeviceManagement {
                         JsonPrimitive contentTypeJSON = contentTypesJSON.get(z).getAsJsonPrimitive();
                         aProtocol.contentTypes.add(new ContentType(contentTypeJSON.getAsString()));
                     }
+                    aResource.protocols.add(aProtocol);
 
 
                 }
@@ -434,6 +439,8 @@ public class DeviceManagementClient implements IDeviceManagement {
                     LSLCDevice device = new LSLCDevice();
                     // add simple types
                     device.id = deviceJSON.get("id").getAsString();
+                    // TODO workaround for RC bug. cutting of the /rc/
+                    device.id = applyIDFix(device.id);
                     device.name = deviceJSON.get("name").getAsString();
                     device.ttl = deviceJSON.get("ttl").getAsInt();
                     device.description = deviceJSON.get("description").getAsString();
@@ -450,13 +457,15 @@ public class DeviceManagementClient implements IDeviceManagement {
                 // workaround for RC bug
                 String resourceID = resourceJSON.get("id").getAsString();
                 if(resourceID.equalsIgnoreCase("/rc/")){
-                    System.out.println("[WARN] : fake device from RC found.");
+                    System.out.println("[WARN] : fake resource from RC found. ignoring.");
                 }else{
                     // resource found, creating representation class
                     LSLCResource newResource = new LSLCResource();
                     // copy simple types
                     newResource.id = resourceID;
+
                     newResource.device = resourceJSON.get("device").getAsString();
+                    newResource.device = this.applyIDFix(newResource.device);
                     newResource.name = resourceJSON.get("name").getAsString();
 
                     // representation retrieval
@@ -482,9 +491,10 @@ public class DeviceManagementClient implements IDeviceManagement {
 
                         // copy simple types
                         newProtocol.type = protocolJSON.get("type").getAsString();
-                        JsonObject urlJSON = protocolJSON.get("endpoint").getAsJsonObject();
-                        if(urlJSON.has("url")) {
-                            newProtocol.endpoint = new URL(urlJSON.get("url").getAsString());
+                        JsonObject endpointJSON = protocolJSON.get("endpoint").getAsJsonObject();
+
+                        for(Map.Entry<String, JsonElement> entry : endpointJSON.entrySet()){
+                            newProtocol.endpoint.put(entry.getKey().toString(), entry.getValue().getAsString());
                         }
 
                         // copy protocol methods
@@ -506,7 +516,6 @@ public class DeviceManagementClient implements IDeviceManagement {
                     newResource.protocols.add(newProtocol);
 
                     // add whole resource to device hash map using device id as key
-                    LSLCDevice d    = devices.get(newResource.device);
                     devices.get(newResource.device).resources.add(newResource);
 
                 }
@@ -515,13 +524,8 @@ public class DeviceManagementClient implements IDeviceManagement {
             }
 
             // return all retrieved devices
-            return new ArrayList<LSLCDevice>(devices.values());
-
-
-
-
-
-
+            ArrayList<LSLCDevice> ret = new ArrayList<LSLCDevice>(devices.values());
+            return ret;
 
         } catch (MalformedURLException e) {
             e.printStackTrace();
@@ -535,5 +539,10 @@ public class DeviceManagementClient implements IDeviceManagement {
 
         // return empty list
         return new ArrayList<LSLCDevice>();
+    }
+    // TODO workaround for RC bug. cutting of the /rc/
+    private String applyIDFix(String buggyID){
+        System.out.println("[WARN] fixing buggy ID : "+buggyID);
+        return buggyID.substring(4,buggyID.length());
     }
 }
