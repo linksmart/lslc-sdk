@@ -1,11 +1,9 @@
 package eu.linksmart.local.sdk.testing;
 
-import eu.linksmart.local.sdk.LSLCDevice;
-import eu.linksmart.local.sdk.LSLCProtocol;
-import eu.linksmart.local.sdk.LSLCRepresentation;
-import eu.linksmart.local.sdk.LSLCResource;
+import eu.linksmart.local.sdk.*;
 import eu.linksmart.local.sdk.clients.DeviceManagementClient;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import javax.mail.internet.ContentType;
@@ -23,16 +21,23 @@ import static junit.framework.Assert.*;
  */
 public class TestJavaSDK {
 
+    public String rawResource ="{\"id\":\"/rc/Leshy/TESTING-FINDDEVICE/46237b21-4737-491a-964a-efd0ed4157d2\",\"type\":\"Resource\",\"name\":\"Resource A\",\"meta\":null,\"protocols\":[{\"type\":\"REST\",\"endpoint\":{\"another-void-alltypes-possible-broker-from-hell\":\"???:::/SH-G/¿X\",\"fancy-alien-broker-from-hell\":\"320uff0:::////30402045r???\"},\"methods\":[\"GET\"],\"content-types\":[\"text/plain\"]}],\"representation\":{\"text/plain\":{\"type\":\"number\"}},\"device\":\"/rc/Leshy/TESTING-FINDDEVICE\"}";
+    public String rawDevice   ="{\"id\":\"Leshy/TESTING-PARSE\",\"type\":\"Device\",\"name\":\"DeviceA\",\"meta\":null,\"description\":\"Device registered from Java DeviceManagementClient\",\"ttl\":60,\"created\":\"2014-11-03T14:35:44.593930162+01:00\",\"updated\":\"2014-11-03T14:35:44.593930162+01:00\",\"expires\":\"2014-11-03T14:36:44.593930162+01:00\",\"resources\":[{\"id\":\"/rc/Leshy/TESTING-GETDEVICE/97f1e876-dee0-49e7-8d07-fdafb713c9e4\",\"type\":\"Resource\",\"name\":\"Resource A\",\"meta\":null,\"protocols\":[{\"type\":\"REST\",\"endpoint\":{\"another-void-alltypes-possible-broker-from-hell\":\"???:::/SH-G/¿X\",\"fancy-alien-broker-from-hell\":\"320uff0:::////30402045r???\"},\"methods\":[\"GET\"],\"content-types\":[\"text/plain\"]}],\"representation\":{\"text/plain\":{\"type\":\"number\"}},\"device\":\"/rc/Leshy/TESTING-GETDEVICE\"}],\"page\":1,\"per_page\":100,\"total\":1}";
+
     public LSLCDevice device;
     DeviceManagementClient client;
 
     @Before
     public void setupDeviceRegistrationDocument() throws MalformedURLException, ParseException {
 
+        //client = new DeviceManagementClient(new URL("http://localhost:7778/rc"));
+        client = new DeviceManagementClient(new URL("http://gando.fit.fraunhofer.de:8091/rc"));
+
+
         ContentType aContentType = new ContentType("text/plain");
 
         device = new LSLCDevice();
-        device.name = new String("DeviceA");
+        device.name = new String("DeviceA");  // <-- will be overwritten in given tests
         device.description = new String("Device registered from Java DeviceManagementClient");
         device.ttl = 60;
 
@@ -55,9 +60,87 @@ public class TestJavaSDK {
 
         device.resources.add(resource);
 
-        //client = new DeviceManagementClient(new URL("http://localhost:7778/rc"));
-        client = new DeviceManagementClient(new URL("http://gando.fit.fraunhofer.de:8091/rc"));
 
+    }
+    @Test
+    public void parseDevice() throws ParseException {
+
+        // offline device parsing test
+        // tests parsing of a JSON device raw string
+        LSLCDevice parsedDevice = DeviceManagementClient.parseDevice(rawDevice);
+        device.id="Leshy/TESTING-PARSE";
+        assertTrue("parsed not equals the original", isRetrivedInstanceIdentical(parsedDevice,device.id));
+    }
+    @Ignore
+    public void parseResource() throws ParseException {
+        LSLCResource parsedResource = DeviceManagementClient.parseResource(rawResource);
+        assertEquals(device.resources.get(0).name,parsedResource.name);
+    }
+
+    @Test
+    public void findDevice() throws MalformedURLException, InterruptedException {
+
+
+        device.name = "TESTING-FINDDEVICE";
+        String regID = client.add(device);
+        System.out.println("[INTEGRATION] registered device id: "+regID);
+
+        LSLCDevice FromRC = client.findDevice("name", RCOperation.CONTAINS, device.name);
+        client.delete(regID);
+
+        // test if all fields were retrieved properly
+        assertTrue("returned device not equal to original one", isRetrivedInstanceIdentical(FromRC,regID));
+        System.out.println("[INTEGRATION] device removed");
+        System.out.println("[INTEGRATION] ****************************************");
+
+    }
+
+    @Test
+    public void findResource() throws MalformedURLException, InterruptedException {
+
+
+        device.name = "TESTING-FINDRESOURCE";
+        String regID = client.add(device);
+        System.out.println("[INTEGRATION] registered device id: "+regID);
+
+        LSLCResource FromRC = client.findResource("name", RCOperation.CONTAINS, device.resources.get(0).name);
+        //System.out.println("[INTEGRATION] device id: "+deviceFromRC.id);
+        client.delete(regID);
+
+        // attach parsed resource to previous device for comparision, since comparision method works only on device instances
+        LSLCDevice deviceCopy = device;
+        deviceCopy.id = regID;
+        // here the retrieved resource is injected into a device
+        deviceCopy.resources.set(0,FromRC);
+
+        // test if all fields were retrieved properly
+        assertTrue("returned device not equal to original one", isRetrivedInstanceIdentical(deviceCopy,regID));
+        System.out.println("[INTEGRATION] device removed");
+        System.out.println("[INTEGRATION] ****************************************");
+
+    }
+    @Test
+    public void findResources() throws MalformedURLException, InterruptedException {
+
+
+        device.name = "TESTING-FINDRESOURCES";
+        String regID = client.add(device);
+        System.out.println("[INTEGRATION] registered device id: "+regID);
+
+        List<LSLCResource> FromRC = client.findResources("name", RCOperation.CONTAINS, device.resources.get(0).name, 1, 100);
+        //System.out.println("[INTEGRATION] device id: "+deviceFromRC.id);
+        client.delete(regID);
+
+//        // attach parsed resource to previous device for comparision, since comparision method works only on device instances
+//        LSLCDevice deviceCopy = device;
+//        deviceCopy.id = regID;
+//        // here the retrieved resource is injected into a device
+//        deviceCopy.resources.set(0,FromRC);
+//
+//        // test if all fields were retrieved properly
+//        assertTrue("returned device not equal to original one", isRetrivedInstanceIdentical(deviceCopy,regID));
+//        System.out.println("[INTEGRATION] device removed");
+//        System.out.println("[INTEGRATION] ****************************************");
 
     }
 
@@ -111,14 +194,14 @@ public class TestJavaSDK {
 
     }
     @Test
-    public void getAllDevicesFromRC() throws MalformedURLException {
+    public void getDevices() throws MalformedURLException {
 
 
-        device.name = "TESTING-GETALLDEVICES";
+        device.name = "TESTING-GETDEVICES";
         String regID = client.add(device);
         System.out.println("[INTEGRATION] registered device id: "+regID);
 
-        List<LSLCDevice> devices = client.getAllDevices();
+        List<LSLCDevice> devices = client.getDevices(1,100);
 
         client.delete(regID);
         System.out.println("[INTEGRATION] device removed");
@@ -136,6 +219,30 @@ public class TestJavaSDK {
         System.out.println("[INTEGRATION] ****************************************");
 
 
+
+    }
+    @Test
+    public void findDevices(){
+        device.name = "TESTING-FINDDEVICES";
+        String regID = client.add(device);
+        System.out.println("[INTEGRATION] registered device id: "+regID);
+
+        List<LSLCDevice> devices = client.findDevices("name", RCOperation.CONTAINS, device.name, 1, 100);
+
+        client.delete(regID);
+        System.out.println("[INTEGRATION] device removed");
+
+        // TODO look up for "my test" device. since the RC changed the ID a workaround is needed. fuuuUU
+        for(int i=0; i < devices.size();i++){
+            LSLCDevice d = devices.get(i);
+            System.out.println("[INTEGRATION] comparing "+d.id+ " and "+regID);
+            if(regID.equals(d.id)){
+                assertTrue("returned device not equal to original one",isRetrivedInstanceIdentical(d,regID));
+            }else{
+                System.out.println("[INTEGRATION] device id not matching.");
+            }
+        }
+        System.out.println("[INTEGRATION] ****************************************");
 
     }
 
