@@ -29,41 +29,14 @@ public class ResourceCatalogClient
     }
     
     private String getAddress(String interface_option) {
-        return this.BASE_URL + "/" + interface_option;
+        return this.BASE_URL + interface_option;
     }
     
-    public String getAllDevices() {
+    public boolean add(String deviceJson) {
     	
     	try {
     		
-    		String responseString;
-    		
-            WebResource webResourceClient = client.resource(this.BASE_URL);
-            
-            ClientResponse response = webResourceClient.type(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON).get(ClientResponse.class);
-            
-    		boolean success = (response.getStatusInfo().getFamily() == Response.Status.Family.SUCCESSFUL);
-    		           
-    		if (success) {
-    			responseString = response.getEntity(String.class);
-    		} else {
-    			String error = response.getStatusInfo().getReasonPhrase();
-    			throw new Exception("failed to get catalog devices : - status code: " + response.getStatusInfo().getStatusCode() + " - reason: " + error);
-    		}
-    		
-    		return responseString;
-    		  
-        } catch (Exception e) {
-        	System.err.println("resource catalog error: reason: " + e.getMessage());	
-        	return null;
-		}	
-    }
-    
-    public boolean registerDevice(String deviceJson) {
-    	
-    	try {
-    		
-    		String interface_option = "";
+    		String interface_option = "/";
     		
             WebResource webResourceClient = client.resource(this.getAddress(interface_option));
             
@@ -84,13 +57,13 @@ public class ResourceCatalogClient
 		}	
     }
     
-    public String getDevice(String deviceID) {
+    public String get(String deviceID) {
     	
     	try {
     		
     		String responseString;
     		
-    		String interface_option = deviceID;
+    		String interface_option = "/" + deviceID;
     		
             WebResource webResourceClient = client.resource(this.getAddress(interface_option));
             
@@ -113,11 +86,11 @@ public class ResourceCatalogClient
 		}	
     }
     
-    public boolean updateDevice(String deviceID, String deviceJson) {
+    public boolean update(String deviceID, String deviceJson) {
     	
     	try {
     		
-    		String interface_option = deviceID;
+    		String interface_option = "/" + deviceID;
     		
             WebResource webResourceClient = client.resource(this.getAddress(interface_option));
             
@@ -138,11 +111,11 @@ public class ResourceCatalogClient
 		}	
     }
     
-    public boolean deleteDevice(String deviceID) {
+    public boolean delete(String deviceID) {
     	
     	try {
     		
-    		String interface_option = deviceID;
+    		String interface_option = "/" + deviceID;
     		
             WebResource webResourceClient = client.resource(this.getAddress(interface_option));
             
@@ -169,7 +142,7 @@ public class ResourceCatalogClient
     		
     		String responseString;
     		
-    		String interface_option = resourceID;
+    		String interface_option = "/" + resourceID;
     		
             WebResource webResourceClient = client.resource(this.getAddress(interface_option));
             
@@ -192,13 +165,13 @@ public class ResourceCatalogClient
 		}	
     }
     
-    public String search(String type, String path, String comparisonCriteria, String value) {
+    public String getDevices(int page, int perPage) {
     	
     	try {
     		
     		String responseString;
     		
-    		String interface_option = type + "/" + path + "/" + comparisonCriteria + "/" + value;
+    		String interface_option = "?page=" + page + "&per_page=" + perPage;
     		
             WebResource webResourceClient = client.resource(this.getAddress(interface_option));
             
@@ -210,7 +183,36 @@ public class ResourceCatalogClient
     			responseString = response.getEntity(String.class);
     		} else {
     			String error = response.getStatusInfo().getReasonPhrase();
-    			throw new Exception("failed to get device/resource for a search criteria: " + interface_option + "  - status code: " + response.getStatusInfo().getStatusCode() + " - reason: " + error);
+    			throw new Exception("failed to get catalog devices : - status code: " + response.getStatusInfo().getStatusCode() + " - reason: " + error);
+    		}
+    		
+    		return responseString;
+    		  
+        } catch (Exception e) {
+        	System.err.println("resource catalog error: reason: " + e.getMessage());	
+        	return null;
+		}	
+    }
+    
+    public String findDevice(String path, String operation, String value) {
+    	
+    	try {
+    		
+    		String responseString;
+    		
+    		String interface_option = "/" + "device" + "/" + path + "/" + operation + "/" + value;
+    		
+            WebResource webResourceClient = client.resource(this.getAddress(interface_option));
+            
+            ClientResponse response = webResourceClient.type(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON).get(ClientResponse.class);
+            
+    		boolean success = (response.getStatusInfo().getFamily() == Response.Status.Family.SUCCESSFUL);
+    		           
+    		if (success) {
+    			responseString = response.getEntity(String.class);
+    		} else {
+    			String error = response.getStatusInfo().getReasonPhrase();
+    			throw new Exception("failed to find device for a search criteria: " + interface_option + "  - status code: " + response.getStatusInfo().getStatusCode() + " - reason: " + error);
     		}
     		
     		return responseString;
@@ -220,5 +222,91 @@ public class ResourceCatalogClient
         	return null;
 		}	
     }
-
+    
+    public String findDevices(String path, String operation, String value, int page, int perPage) {
+    	
+    	try {
+    		
+    		String responseString;
+    		
+    		String interface_option = "/" + "devices" + "/" + path + "/" + operation + "/" + value + "?page=" + page + "&per_page=" + perPage;
+    		
+            WebResource webResourceClient = client.resource(this.getAddress(interface_option));
+            
+            ClientResponse response = webResourceClient.type(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON).get(ClientResponse.class);
+            
+    		boolean success = (response.getStatusInfo().getFamily() == Response.Status.Family.SUCCESSFUL);
+    		           
+    		if (success) {
+    			responseString = response.getEntity(String.class);
+    		} else {
+    			String error = response.getStatusInfo().getReasonPhrase();
+    			throw new Exception("failed to find devices for a search criteria: " + interface_option + "  - status code: " + response.getStatusInfo().getStatusCode() + " - reason: " + error);
+    		}
+    		
+    		return responseString;
+    		  
+        } catch (Exception e) {
+        	System.err.println("resource catalog error: reason: " + e.getMessage());
+        	return null;
+		}	
+    }
+    
+    public String findResource(String path, String operation, String value) {
+    	
+    	try {
+    		
+    		String responseString;
+    		
+    		String interface_option = "/" + "resource" + "/" + path + "/" + operation + "/" + value;
+    		
+            WebResource webResourceClient = client.resource(this.getAddress(interface_option));
+            
+            ClientResponse response = webResourceClient.type(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON).get(ClientResponse.class);
+            
+    		boolean success = (response.getStatusInfo().getFamily() == Response.Status.Family.SUCCESSFUL);
+    		           
+    		if (success) {
+    			responseString = response.getEntity(String.class);
+    		} else {
+    			String error = response.getStatusInfo().getReasonPhrase();
+    			throw new Exception("failed to find resource for a search criteria: " + interface_option + "  - status code: " + response.getStatusInfo().getStatusCode() + " - reason: " + error);
+    		}
+    		
+    		return responseString;
+    		  
+        } catch (Exception e) {
+        	System.err.println("resource catalog error: reason: " + e.getMessage());
+        	return null;
+		}	
+    }
+    
+    public String findResources(String path, String operation, String value, int page, int perPage) {
+    	
+    	try {
+    		
+    		String responseString;
+    		
+    		String interface_option = "/" + "resources" + "/" + path + "/" + operation + "/" + value + "?page=" + page + "&per_page=" + perPage;
+    		
+            WebResource webResourceClient = client.resource(this.getAddress(interface_option));
+            
+            ClientResponse response = webResourceClient.type(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON).get(ClientResponse.class);
+            
+    		boolean success = (response.getStatusInfo().getFamily() == Response.Status.Family.SUCCESSFUL);
+    		           
+    		if (success) {
+    			responseString = response.getEntity(String.class);
+    		} else {
+    			String error = response.getStatusInfo().getReasonPhrase();
+    			throw new Exception("failed to find resources for a search criteria: " + interface_option + "  - status code: " + response.getStatusInfo().getStatusCode() + " - reason: " + error);
+    		}
+    		
+    		return responseString;
+    		  
+        } catch (Exception e) {
+        	System.err.println("resource catalog error: reason: " + e.getMessage());
+        	return null;
+		}	
+    }
 }

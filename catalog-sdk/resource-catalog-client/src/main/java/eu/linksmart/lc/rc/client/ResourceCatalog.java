@@ -9,10 +9,6 @@ import eu.linksmart.lc.rc.types.Resource;
 
 public class ResourceCatalog {
 	
-	public static final String TYPE_DEVICE = "device";
-	
-	public static final String TYPE_RESOURCE = "resource";
-	
 	private static String BASE_URL = "http://gando.fit.fraunhofer.de:8091/rc";
 	
 	static {
@@ -23,26 +19,21 @@ public class ResourceCatalog {
 		BASE_URL = url;
 	}
 	
-	public static boolean registerDevice(Registration registration) {
-		return ResourceCatalogClient.getInstance(BASE_URL).registerDevice(new Gson().toJson(registration));
+	public static boolean add(Registration registration) {
+		return ResourceCatalogClient.getInstance(BASE_URL).add(new Gson().toJson(registration));
 	}
 	
-	public static Catalog getAllDevices() {
-		String catalogJsonString = ResourceCatalogClient.getInstance(BASE_URL).getAllDevices();
-		return new Gson().fromJson(catalogJsonString, Catalog.class);
-	}
-	
-	public static Device getDevice(String deviceID) {
-		String deviceJsonString = ResourceCatalogClient.getInstance(BASE_URL).getDevice(deviceID);
+	public static Device get(String deviceID) {
+		String deviceJsonString = ResourceCatalogClient.getInstance(BASE_URL).get(deviceID);
 		return new Gson().fromJson(deviceJsonString, Device.class);
 	}
 	
-	public static boolean updateDevice(String deviceID, Registration updatedDeviceJson) {
-		return ResourceCatalogClient.getInstance(BASE_URL).updateDevice(deviceID, new Gson().toJson(updatedDeviceJson));
+	public static boolean update(String deviceID, Registration updatedDeviceJson) {
+		return ResourceCatalogClient.getInstance(BASE_URL).update(deviceID, new Gson().toJson(updatedDeviceJson));
 	}
 	
-	public static boolean deleteDevice(String deviceID) {
-		return ResourceCatalogClient.getInstance(BASE_URL).deleteDevice(deviceID);
+	public static boolean delete(String deviceID) {
+		return ResourceCatalogClient.getInstance(BASE_URL).delete(deviceID);
 	}
 	
 	public static Resource getResource(String resourceID) {
@@ -50,13 +41,29 @@ public class ResourceCatalog {
 		return new Gson().fromJson(resourceJsonString, Resource.class);
 	}
 	
-	public static Resource search(String path, String criteria, String value) {
-		String result_updated_sr = ResourceCatalogClient.getInstance(BASE_URL).search(TYPE_RESOURCE, path, criteria, value);
-		return new Gson().fromJson(result_updated_sr, Resource.class);	
+	public static Catalog getDevices(int page, int perPage) {
+		String catalogJsonString = ResourceCatalogClient.getInstance(BASE_URL).getDevices(page, perPage);
+		return new Gson().fromJson(catalogJsonString, Catalog.class);
 	}
 	
-	public static Device searchDevice(String path, String criteria, String value) {
-		String result_updated_sr = ResourceCatalogClient.getInstance(BASE_URL).search(TYPE_DEVICE, path, criteria, value);
-		return new Gson().fromJson(result_updated_sr, Device.class);	
+	public static Device findDevice(String path, String operation, String value) {
+		String result_fd = ResourceCatalogClient.getInstance(BASE_URL).findDevice(path, operation, value);
+		return new Gson().fromJson(result_fd, Device.class);	
 	}
+	
+	public static Catalog findDevices(String path, String operation, String value, int page, int perPage) {
+		String result_fds = ResourceCatalogClient.getInstance(BASE_URL).findDevices(path, operation, value, page, perPage);
+		return new Gson().fromJson(result_fds, Catalog.class);	
+	}
+	
+	public static Resource findResource(String path, String operation, String value) {
+		String result_fr = ResourceCatalogClient.getInstance(BASE_URL).findResource(path, operation, value);
+		return new Gson().fromJson(result_fr, Resource.class);	
+	}
+	
+	public static Catalog findResources(String path, String operation, String value, int page, int perPage) {
+		String result_frs = ResourceCatalogClient.getInstance(BASE_URL).findResources(path, operation, value, page, perPage);
+		return new Gson().fromJson(result_frs, Catalog.class);	
+	}
+	
 }

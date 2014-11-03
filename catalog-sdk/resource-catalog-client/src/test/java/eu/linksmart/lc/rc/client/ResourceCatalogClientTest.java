@@ -16,39 +16,64 @@ public class ResourceCatalogClientTest {
 	@Test
 	public void testCatalogClient() {
 		
+		String DEVICE_ID = "testdc/device1";
+		String RESOURCE_ID = "testdc/device1/resource1";
+		String UPDATED_RESOURCE_ID = "testdc/device1/resource2";
+		String DEVICE_NAME = "device1";
+		String RESOURCE_NAME = "resource1";
+		
 		String deviceJson = readFileContents("/registration.json");
 		
-		assertTrue(ResourceCatalogClient.getInstance(BASE_URL).registerDevice(deviceJson));
+		assertTrue(ResourceCatalogClient.getInstance(BASE_URL).add(deviceJson));
 		
-		String result_gd = ResourceCatalogClient.getInstance(BASE_URL).getDevice("testdc/device1");
+		String result_gd = ResourceCatalogClient.getInstance(BASE_URL).get(DEVICE_ID);
 		assertNotNull(result_gd);
 		System.out.println("get-device: " + result_gd);
 		
-		String result_gr = ResourceCatalogClient.getInstance(BASE_URL).getResource("testdc/device1/resource1");
+		String result_gr = ResourceCatalogClient.getInstance(BASE_URL).getResource(RESOURCE_ID);
 		assertNotNull(result_gr);
 		System.out.println("get-resource: " + result_gr);
 		
-		String result_sd = ResourceCatalogClient.getInstance(BASE_URL).search("device", "name", "equals", "device1");
-		assertNotNull(result_sd);
-		System.out.println("search-device: " + result_sd);
-		
 		String updatedDeviceJson = readFileContents("/update-registration.json");
 		
-		assertTrue(ResourceCatalogClient.getInstance(BASE_URL).updateDevice("testdc/device1", updatedDeviceJson));
+		assertTrue(ResourceCatalogClient.getInstance(BASE_URL).update(DEVICE_ID, updatedDeviceJson));
 		
-		String result_updated_gd = ResourceCatalogClient.getInstance(BASE_URL).getDevice("testdc/device1");
+		String result_updated_gd = ResourceCatalogClient.getInstance(BASE_URL).get(DEVICE_ID);
 		assertNotNull(result_updated_gd);
 		System.out.println("get-updated_device: " + result_updated_gd);
 		
-		String result_updated_gr = ResourceCatalogClient.getInstance(BASE_URL).getResource("testdc/device1/resource2");
+		String result_updated_gr = ResourceCatalogClient.getInstance(BASE_URL).getResource(UPDATED_RESOURCE_ID);
 		assertNotNull(result_updated_gd);
 		System.out.println("get-updated_resource: " + result_updated_gr);
 		
-		String result_updated_sr = ResourceCatalogClient.getInstance(BASE_URL).search("resource", "name", "equals", "resource2");
-		assertNotNull(result_updated_sr);
-		System.out.println("search-updated_resource: " + result_updated_sr);
+		assertTrue(ResourceCatalogClient.getInstance(BASE_URL).delete(DEVICE_ID));
 		
-		assertTrue(ResourceCatalogClient.getInstance(BASE_URL).deleteDevice("testdc/device1"));
+		//
+		// now add new device registration to test the filtering API
+		//
+		assertTrue(ResourceCatalogClient.getInstance(BASE_URL).add(readFileContents("/registration.json")));
+		
+		String result_gdev = ResourceCatalogClient.getInstance(BASE_URL).getDevices(1, 10);
+		assertNotNull(result_gdev);
+		System.out.println("get-devices: " + result_gdev);
+		
+		String result_fd = ResourceCatalogClient.getInstance(BASE_URL).findDevice("name", "equals", DEVICE_NAME);
+		assertNotNull(result_fd);
+		System.out.println("find-device: " + result_fd);
+		
+		String result_fds = ResourceCatalogClient.getInstance(BASE_URL).findDevices("name", "equals", DEVICE_NAME, 1, 100);
+		assertNotNull(result_fds);
+		System.out.println("find-devices: " + result_fds);
+		
+		String result_fr = ResourceCatalogClient.getInstance(BASE_URL).findResource("name", "equals", RESOURCE_NAME);
+		assertNotNull(result_fr);
+		System.out.println("find-resource: " + result_fr);
+		
+		String result_frs = ResourceCatalogClient.getInstance(BASE_URL).findResources("name", "equals", RESOURCE_NAME, 1, 100);
+		assertNotNull(result_frs);
+		System.out.println("find-resources: " + result_frs);
+		
+		assertTrue(ResourceCatalogClient.getInstance(BASE_URL).delete(DEVICE_ID));
 		
 	}
 	
