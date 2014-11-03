@@ -14,27 +14,42 @@ public class ServiceCatalogClientTest {
 	@Test
 	public void testCatalogClient() {
 		
-		String serviceJson = readFileContents("/registration.json");
-		assertTrue(ServiceCatalogClient.getInstance(BASE_URL).registerService(serviceJson));
+		String SERVICE_ID = "testserver/broker";
+		String SERVICE_NAME = "MqttBroker";
 		
-		String result_gc = ServiceCatalogClient.getInstance(BASE_URL).getService("testserver/broker");
+		String serviceJson = readFileContents("/registration.json");
+		assertTrue(ServiceCatalogClient.getInstance(BASE_URL).add(serviceJson));
+		
+		String result_gc = ServiceCatalogClient.getInstance(BASE_URL).get(SERVICE_ID);
 		assertNotNull(result_gc);
 		System.out.println("get-service: " + result_gc);
 		
-		String result_sd = ServiceCatalogClient.getInstance(BASE_URL).search("service", "name", "equals", "MqttBroker");
-		assertNotNull(result_sd);
-		System.out.println("search-service: " + result_sd);
-		
 		String updatedServiceJson = readFileContents("/update-registration.json");
 		
-		assertTrue(ServiceCatalogClient.getInstance(BASE_URL).updateService("testserver/broker", updatedServiceJson));
+		assertTrue(ServiceCatalogClient.getInstance(BASE_URL).update(SERVICE_ID, updatedServiceJson));
 		
-		String result_updated_gs = ServiceCatalogClient.getInstance(BASE_URL).getService("testserver/broker");
+		String result_updated_gs = ServiceCatalogClient.getInstance(BASE_URL).get(SERVICE_ID);
 		assertNotNull(result_updated_gs);
 		System.out.println("get-updated_service: " + result_updated_gs);
 		
-		assertTrue(ServiceCatalogClient.getInstance(BASE_URL).deleteService("testserver/broker"));
+		assertTrue(ServiceCatalogClient.getInstance(BASE_URL).delete(SERVICE_ID));
 		
+		//
+		// now add new device registration to test the filtering API
+		//
+		assertTrue(ServiceCatalogClient.getInstance(BASE_URL).add(readFileContents("/registration.json")));
+		
+		String result_gs = ServiceCatalogClient.getInstance(BASE_URL).getServices(1, 100);
+		assertNotNull(result_gs);
+		System.out.println("get-services: " + result_gs);
+		
+		String result_fs = ServiceCatalogClient.getInstance(BASE_URL).findService("name", "equals", SERVICE_NAME);
+		assertNotNull(result_fs);
+		System.out.println("find-service: " + result_fs);
+		
+		String result_fservices = ServiceCatalogClient.getInstance(BASE_URL).findServices("name", "equals", SERVICE_NAME, 1, 100);
+		assertNotNull(result_fservices);
+		System.out.println("find-services: " + result_fservices);
 	}
 	
 	private String readFileContents(String fileName) {

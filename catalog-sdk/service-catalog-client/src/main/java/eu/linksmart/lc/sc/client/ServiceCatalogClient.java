@@ -29,14 +29,14 @@ public class ServiceCatalogClient
     }
     
     private String getAddress(String interface_option) {
-        return this.BASE_URL + "/" + interface_option;
+        return this.BASE_URL + interface_option;
     }
     
-    public boolean registerService(String serviceJson) {
+    public boolean add(String serviceJson) {
     	
     	try {
     		
-    		String interface_option = "";
+    		String interface_option = "/";
     		
             WebResource webResourceClient = client.resource(this.getAddress(interface_option));
             
@@ -48,7 +48,7 @@ public class ServiceCatalogClient
     			return success;
     		} else {
     			String error = response.getStatusInfo().getReasonPhrase();
-    			throw new Exception("failed to register a service : status code: " + response.getStatusInfo().getStatusCode() + " - reason: " + error);
+    			throw new Exception("failed to add a service : status code: " + response.getStatusInfo().getStatusCode() + " - reason: " + error);
     		}
     		  
         } catch (Exception e) {
@@ -57,40 +57,13 @@ public class ServiceCatalogClient
 		}	
     }
     
-    public String getAllServices() {
+    public String get(String serviceID) {
     	
     	try {
     		
     		String responseString;
     		
-            WebResource webResourceClient = client.resource(this.BASE_URL);
-            
-            ClientResponse response = webResourceClient.type(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON).get(ClientResponse.class);
-            
-    		boolean success = (response.getStatusInfo().getFamily() == Response.Status.Family.SUCCESSFUL);
-    		           
-    		if (success) {
-    			responseString = response.getEntity(String.class);
-    		} else {
-    			String error = response.getStatusInfo().getReasonPhrase();
-    			throw new Exception("failed to get catalog services : - status code: " + response.getStatusInfo().getStatusCode() + " - reason: " + error);
-    		}
-    		
-    		return responseString;
-    		  
-        } catch (Exception e) {
-        	System.err.println("service catalog error: reason: " + e.getMessage());	
-        	return null;
-		}	
-    }
-    
-    public String getService(String serviceID) {
-    	
-    	try {
-    		
-    		String responseString;
-    		
-    		String interface_option = serviceID;
+    		String interface_option = "/" + serviceID;
     		
             WebResource webResourceClient = client.resource(this.getAddress(interface_option));
             
@@ -113,11 +86,11 @@ public class ServiceCatalogClient
 		}	
     }
     
-    public boolean updateService(String serviceID, String serviceJson) {
+    public boolean update(String serviceID, String serviceJson) {
     	
     	try {
     		
-    		String interface_option = serviceID;
+    		String interface_option = "/" + serviceID;
     		
             WebResource webResourceClient = client.resource(this.getAddress(interface_option));
             
@@ -138,11 +111,11 @@ public class ServiceCatalogClient
 		}	
     }
     
-    public boolean deleteService(String serviceID) {
+    public boolean delete(String serviceID) {
     	
     	try {
     		
-    		String interface_option = serviceID;
+    		String interface_option = "/" + serviceID;
     		
             WebResource webResourceClient = client.resource(this.getAddress(interface_option));
             
@@ -163,13 +136,13 @@ public class ServiceCatalogClient
 		}	
     }
     
-    public String search(String type, String path, String comparisonCriteria, String value) {
+    public String getServices(int page, int perPage) {
     	
     	try {
     		
     		String responseString;
     		
-    		String interface_option = type + "/" + path + "/" + comparisonCriteria + "/" + value;
+    		String interface_option = "?page=" + page + "&per_page=" + perPage;
     		
             WebResource webResourceClient = client.resource(this.getAddress(interface_option));
             
@@ -181,7 +154,36 @@ public class ServiceCatalogClient
     			responseString = response.getEntity(String.class);
     		} else {
     			String error = response.getStatusInfo().getReasonPhrase();
-    			throw new Exception("failed to get service(s) for a search criteria: " + interface_option + "  - status code: " + response.getStatusInfo().getStatusCode() + " - reason: " + error);
+    			throw new Exception("failed to get catalog services : - status code: " + response.getStatusInfo().getStatusCode() + " - reason: " + error);
+    		}
+    		
+    		return responseString;
+    		  
+        } catch (Exception e) {
+        	System.err.println("service catalog error: reason: " + e.getMessage());	
+        	return null;
+		}	
+    }
+    
+    public String findService(String path, String operation, String value) {
+    	
+    	try {
+    		
+    		String responseString;
+    		
+    		String interface_option = "/" + "service"  + "/" + path + "/" + operation + "/" + value;
+    		
+            WebResource webResourceClient = client.resource(this.getAddress(interface_option));
+            
+            ClientResponse response = webResourceClient.type(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON).get(ClientResponse.class);
+            
+    		boolean success = (response.getStatusInfo().getFamily() == Response.Status.Family.SUCCESSFUL);
+    		           
+    		if (success) {
+    			responseString = response.getEntity(String.class);
+    		} else {
+    			String error = response.getStatusInfo().getReasonPhrase();
+    			throw new Exception("failed to find service for a search criteria: " + interface_option + "  - status code: " + response.getStatusInfo().getStatusCode() + " - reason: " + error);
     		}
     		
     		return responseString;
@@ -191,5 +193,33 @@ public class ServiceCatalogClient
         	return null;
 		}	
     }
-   
+    
+    public String findServices(String path, String operation, String value, int page, int perPage) {
+    	
+    	try {
+    		
+    		String responseString;
+    		
+    		String interface_option = "/" + "services"  + "/" + path + "/" + operation + "/" + value + "?page=" + page + "&per_page=" + perPage;
+    		
+            WebResource webResourceClient = client.resource(this.getAddress(interface_option));
+            
+            ClientResponse response = webResourceClient.type(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON).get(ClientResponse.class);
+            
+    		boolean success = (response.getStatusInfo().getFamily() == Response.Status.Family.SUCCESSFUL);
+    		           
+    		if (success) {
+    			responseString = response.getEntity(String.class);
+    		} else {
+    			String error = response.getStatusInfo().getReasonPhrase();
+    			throw new Exception("failed to find services for a search criteria: " + interface_option + "  - status code: " + response.getStatusInfo().getStatusCode() + " - reason: " + error);
+    		}
+    		
+    		return responseString;
+    		  
+        } catch (Exception e) {
+        	System.err.println("service catalog error: reason: " + e.getMessage());
+        	return null;
+		}	
+    }
 }
