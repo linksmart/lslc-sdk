@@ -10,28 +10,40 @@
 
 	ResourceCatalog.setURL("http://hostname:port/base_path");
 
-- use DeviceBuilder class to get Registration object that will be used to create device registration into resource catalog:
+- use DeviceBuilder class to create Registration object that will be used to add device registration into resource catalog:
 
 	create registration object from a json file
 		Registration registration = DeviceBuilder.createRegistration(String jsonFileName)
 	or
-	create a device registration for given ID & Name with one resource for protocol type REST
+	create a device registration for given device connectorID & device name with one resource of protocol type REST
 		Registration registration = DeviceBuilder.createRegistration(String deviceConnectorID, String deviceName, String resourceName, String URL)
 		
-- to get all registered devices
-	Catalog catalog = ResourceCatalog.getAllDevices()
-	
+- to add a device registration
+	ResourceCatalog.add(registration)
+				
 - to get a given device
-	Device device = ResourceCatalog.getDevice(deviceID)
+	Device device = ResourceCatalog.get(deviceID)
+		
+- to update a given device
+	ResourceCatalog.update(deviceID, registration)
 	
+- to delete a given device
+	ResourceCatalog.delete(deviceID)
+
 - to get a given resource
 	Resource resource = ResourceCatalog.getResource(resourceID)
+		
+- to get registered devices
+	Catalog catalog = ResourceCatalog.getDevices(page, perPage)
 	
-- to update a given device
-	ResourceCatalog.updateDevice(deviceID, registration)
+- to find a device for a given criteria
+	Device device = ResourceCatalog.findDevice(path, criteria, value)
 	
-- to search a device for given criteria
-	Device device = ResourceCatalog.searchDevice(path, criteria, value)
+- to find devices for a given criteria
+	Catalog catalog = ResourceCatalog.findDevices(path, criteria, value, page, perPage)
 	
-- to search a resource for a given criteria
-	Resource resource = ResourceCatalog.search(path, criteria, value)	
+- to find a resource for a given criteria
+	Resource resource = ResourceCatalog.findResource(path, criteria, value)
+
+- to find resources for a given criteria
+	Catalog catalog = ResourceCatalog.findResources(path, criteria, value, page, perPage)	

@@ -10,25 +10,31 @@
 
 	ServiceCatalog.setURL("http://hostname:port/base_path");
 
-- use ServiceBuilder class to get Registration object that will be used to create service registration into service catalog:
+- use ServiceBuilder class to create Registration object that will be used to add service registration into service catalog:
 
 	create registration object from a json file
 		Registration registration = ServiceBuilder.createRegistration(String jsonFileName)
 	or
 	create a service registration for given ID & Name for protocol type REST
 		Registration registration = ServiceBuilder.createRegistration(String serverID, String serviceName, String URL)
-		
-- to get all registered services
-	SCatalog catalog = ServiceCatalog.getAllServices()
+
+- to add a service registration
+	Service service = ServiceCatalog.add(registration)
 	
 - to get a given service
-	Service service = ServiceCatalog.getService(serviceID)
+	Service service = ServiceCatalog.get(serviceID)
 		
 - to update a given service
-	ServiceCatalog.updateService(serviceID, registration)
+	ServiceCatalog.update(serviceID, registration)
 
 - to delete a given service
-	ServiceCatalog.deleteService(serviceID)
-		
-- to search a service for given criteria
-	Service service = ServiceCatalog.search(path, criteria, value)
+	ServiceCatalog.delete(serviceID)
+
+- to get registered services
+	SCatalog catalog = ServiceCatalog.getServices(page, perPage)
+			
+- to find a service for given criteria
+	Service service = ServiceCatalog.findService(path, criteria, value)
+	
+- to find services for a given criteria
+	SCatalog catalog = ServiceCatalog.findServices(path, criteria, value, page, perPage)
