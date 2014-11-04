@@ -2,27 +2,36 @@ package eu.linksmart.local.sdk.clients;
 
 import com.google.gson.*;
 import eu.linksmart.local.sdk.*;
+import org.apache.log4j.Logger;
 
 import javax.mail.internet.ContentType;
 import javax.mail.internet.ParseException;
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
 import java.net.*;
 import java.util.*;
+
+
 
 /**
  * Created by carlos on 24.10.14.
  */
 public class DeviceManagementClient implements IDeviceManagement {
 
+    private static Logger logger = Logger.getLogger(DeviceManagementClient.class);
+
     private String hostID;
     private URL ResourceCatalogEndpoint;
+    private String RCPrefix = "/rc/";
 
     public DeviceManagementClient(URL ResourceCatalog) {
         this.ResourceCatalogEndpoint = ResourceCatalog;
         try {
             hostID = InetAddress.getLocalHost().getHostName();
         } catch (UnknownHostException e) {
-            e.printStackTrace();
+            logger.error("Wrong resource catalog URL",e);
         }
     }
 
@@ -30,9 +39,11 @@ public class DeviceManagementClient implements IDeviceManagement {
     @Override
     public String add(LSLCDevice aDevice) {
 
+        logger.debug("adding device called");
         String registrationID = hostID + "/" + aDevice.name;
 
         String payload = createRegistrationPayload(aDevice, registrationID);
+        logger.debug("registration payload created");
 
         // try to register device inside ResourceCatalog
         String registerEndpoint = ResourceCatalogEndpoint + "/";
@@ -45,6 +56,7 @@ public class DeviceManagementClient implements IDeviceManagement {
             OutputStreamWriter writer = new OutputStreamWriter(connection.getOutputStream(), "UTF-8");
             writer.write(payload);
             writer.close();
+            logger.debug("payload send to RC");
             BufferedReader br = new BufferedReader(new InputStreamReader(connection.getInputStream()));
             String line;
             StringBuffer jsonString = new StringBuffer();
@@ -53,13 +65,15 @@ public class DeviceManagementClient implements IDeviceManagement {
             }
             br.close();
             int responseCode = connection.getResponseCode();
+            logger.debug("response code retrieved from RC: "+responseCode);
             if (responseCode != 201) {
-                System.out.println("[WARN] registration response code: " + responseCode);
+                logger.warn("device not registrated at the RC");
+                logger.warn("registration response code: " + responseCode);
                 return null;
             }
             connection.disconnect();
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.error(e);
             return null;
         }
 
@@ -70,6 +84,7 @@ public class DeviceManagementClient implements IDeviceManagement {
     @Override
     public boolean delete(String deviceID) {
 
+        logger.debug("deleting device : "+deviceID);
         String deleteEndpoint = ResourceCatalogEndpoint.toString() + "/" + deviceID;
         try {
             HttpURLConnection connection = (HttpURLConnection) new URL(deleteEndpoint).openConnection();
@@ -77,19 +92,21 @@ public class DeviceManagementClient implements IDeviceManagement {
             connection.setDoOutput(false);
             connection.setRequestMethod("DELETE");
             int responseCode = connection.getResponseCode();
-
+            logger.debug("response code retrieved from RC :"+responseCode);
             connection.disconnect();
             if (responseCode == 200) return true;
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.error(e);
             return false;
         }
+        logger.warn("device not deleted");
         return false;
     }
 
     @Override
     public boolean update(LSLCDevice aDevice, String aDeviceID) {
 
+        logger.debug("updating device : "+aDeviceID);
         String updateEndpoint = ResourceCatalogEndpoint.toString() + "/" + aDeviceID;
 
         String payload = createRegistrationPayload(aDevice, aDeviceID);
@@ -105,26 +122,27 @@ public class DeviceManagementClient implements IDeviceManagement {
             OutputStreamWriter writer = new OutputStreamWriter(connection.getOutputStream(), "UTF-8");
             writer.write(payload);
             writer.close();
+            logger.debug("payload send to RC");
 
             int responseCode = connection.getResponseCode();
             if (responseCode != 200) {
-                System.out.println("[WARN] update response code: " + responseCode);
+                logger.warn("update response code: " + responseCode);
                 return false;
             }
 
             connection.disconnect();
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.error(e);
             return false;
         }
-
-
+        logger.warn("device not updated");
         return true;
     }
 
     @Override
     public LSLCDevice get(String deviceID) {
 
+        logger.debug("getting device : "+deviceID);
         String getEndpoint = ResourceCatalogEndpoint.toString() + "/" + deviceID;
 
         LSLCDevice parsedDevice = null;
@@ -132,13 +150,13 @@ public class DeviceManagementClient implements IDeviceManagement {
         try {
             // try to retrieve device from ResourceCatalog
             String deviceString = getRawData(new URL(getEndpoint));
-            System.out.println("Raw device: " + deviceString);
             // parse raw string into LSLCDevice
             parsedDevice = parseDevice(deviceString);
+            logger.debug("device retrieved and parsed");
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.error(e);
         } catch (ParseException e) {
-            e.printStackTrace();
+            logger.error(e);
         }
 
         return parsedDevice;
@@ -147,6 +165,7 @@ public class DeviceManagementClient implements IDeviceManagement {
 
     @Override
     public List<LSLCDevice> getDevices(int page, int perPage) {
+        logger.debug("getting devices called");
         String getDevicesEndpoint = ResourceCatalogEndpoint.toString()+"?page="+page+"&per_page="+perPage;
         // parsing section starts
         try {
@@ -154,17 +173,37 @@ public class DeviceManagementClient implements IDeviceManagement {
             URI uri = new URI(url.getProtocol(), url.getUserInfo(), url.getHost(), url.getPort(), url.getPath(), url.getQuery(), url.getRef());
             // retrieve raw devices string from RC
             String devicesRAW = getRawData(new URL(uri.toASCIIString()));
-            return parseDevices(devicesRAW);
+            ArrayList<LSLCDevice> parsedDevices = parseDevices(devicesRAW);
+            logger.debug("devices retrieved and parsed");
+            return parsedDevices;
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.error(e);
         } catch (URISyntaxException e) {
-            e.printStackTrace();
+            logger.error(e);
         }
         return null;
     }
+    // TODO workaround for changing device IDs.
+    // sets the prefix added to device ID by the RC
+    private void updateRCPrefix() throws IOException {
 
-    public ArrayList<LSLCDevice> parseDevices(String rawDevicesString){
+        logger.debug("updating ID-prefix from RC");
+        // grab something from RC , which included the RC prefix
+        String getDevicesEndpoint = ResourceCatalogEndpoint.toString()+"?page=1&per_page=1";
+        String rawDataFromRC = getRawData(new URL(getDevicesEndpoint));
+        JsonParser parser = new JsonParser();
+        JsonObject parsedDocument = parser.parse(rawDataFromRC).getAsJsonObject();
+        JsonElement prefixJSON = parsedDocument.get("id");
 
+        // store RC prefix for further operations
+        this.RCPrefix = prefixJSON.getAsString()+"/";
+        logger.trace("new RC prefix: "+this.RCPrefix);
+
+    }
+
+    public ArrayList<LSLCDevice> parseDevices(String rawDevicesString) throws IOException {
+
+        logger.debug("parsing raw devices string");
         ArrayList<LSLCDevice> ret = new ArrayList<LSLCDevice>();
 
         JsonParser parser = new JsonParser();
@@ -206,7 +245,7 @@ public class DeviceManagementClient implements IDeviceManagement {
             // workaround for RC bug
             String resourceID = resourceJSON.get("id").getAsString();
             if (resourceID.equalsIgnoreCase("/rc/")) {
-                System.out.println("[WARN] : fake resource from RC found. ignoring.");
+                logger.warn("fake resource from RC found. ignoring.");
             } else {
                 // resource found, creating representation class
                 LSLCResource newResource = new LSLCResource();
@@ -214,7 +253,7 @@ public class DeviceManagementClient implements IDeviceManagement {
                 newResource.id = resourceID;
 
                 newResource.device = resourceJSON.get("device").getAsString();
-                newResource.device = this.applyIDFix(newResource.device);
+                newResource.device = applyIDFix(newResource.device);
                 newResource.name = resourceJSON.get("name").getAsString();
 
                 // representation retrieval
@@ -229,8 +268,8 @@ public class DeviceManagementClient implements IDeviceManagement {
                     try {
                         newRepresentation.contentType = new ContentType(key);
                     } catch (ParseException e) {
-                        System.out.println("[WARN] ignoring wrong content type : "+key);
-                        e.printStackTrace();
+                        logger.warn("ignoring wrong content type : "+key);
+                        logger.warn(e);
                     }
                     newRepresentation.type = value.getAsJsonObject().get("type").getAsString();
                 }
@@ -265,8 +304,8 @@ public class DeviceManagementClient implements IDeviceManagement {
                             newContentType = new ContentType(contentTypesJSON.get(z).getAsString());
                             newProtocol.contentTypes.add(newContentType);
                         } catch (ParseException e) {
-                            e.printStackTrace();
-                            System.out.println("[WARN] ignoring wrong content type");
+                            logger.warn("ignoring wrong content type");
+                            logger.warn(e);
                         }
 
                     }
@@ -281,26 +320,16 @@ public class DeviceManagementClient implements IDeviceManagement {
             }
         }
 
+        logger.debug("raw devices string parsed");
         // return all retrieved devices
         ret = new ArrayList<LSLCDevice>(devices.values());
         return ret;
     }
 
-//    public List<LSLCDevice> getAllDevices() {
-//        String getAllDevicesEndpoint = ResourceCatalogEndpoint.toString();
-//        ArrayList<LSLCDevice> ret = new ArrayList<LSLCDevice>();
-//        // parsing section starts
-//        try {
-//            String devicesRawString = getRawData(new URL(getAllDevicesEndpoint));
-//            return parseDevices(devicesRawString);
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
-//        return ret;
-//    }
-
     @Override
     public LSLCDevice findDevice(String path, RCOperation op, String value) {
+
+        logger.debug("find device called");
 
         // construct endpoint for device search
         String findDeviceEndpoint = ResourceCatalogEndpoint.toString() + "/device/" + path + "/" + op.toString().toLowerCase() + "/" + value;
@@ -313,40 +342,42 @@ public class DeviceManagementClient implements IDeviceManagement {
 
             // retrieve raw device string from RC
             String deviceRAW = getRawData(new URL(uri.toASCIIString()));
-            System.out.println("find device RAW string : " + deviceRAW);
             parsedDevice = parseDevice(deviceRAW);
+            logger.debug("device retrieved and parsed");
 
         } catch (MalformedURLException e) {
-            e.printStackTrace();
+            logger.error(e);
         } catch (URISyntaxException e) {
-            e.printStackTrace();
+            logger.error(e);
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.error(e);
         } catch (ParseException e) {
-            e.printStackTrace();
+            logger.error(e);
         }
         return parsedDevice;
     }
 
     @Override
     public List<LSLCDevice> findDevices(String path, RCOperation op, String value,int page,int perPage) {
+
+        logger.debug("find devices called");
         String findDevicesEndpoint = ResourceCatalogEndpoint.toString() + "/devices/" + path + "/" + op.toString().toLowerCase() + "/" + value+"?page="+page+"&per_page="+perPage;
-        //System.out.println("find devices url:"+ findDevicesEndpoint);
 
         URL url = null;
         try {
             url = new URL(findDevicesEndpoint);
             URI uri = new URI(url.getProtocol(), url.getUserInfo(), url.getHost(), url.getPort(), url.getPath(), url.getQuery(), url.getRef());
             String devicesRAW = getRawData(new URL(uri.toASCIIString()));
-            //System.out.println("from server:"+devicesRAW);
-            return parseDevices(devicesRAW);
+            ArrayList<LSLCDevice> parsedDevices = parseDevices(devicesRAW);
+            logger.debug("devices retrieved and parsed");
+            return parsedDevices;
 
         } catch (MalformedURLException e) {
-            e.printStackTrace();
+            logger.error(e);
         } catch (URISyntaxException e) {
-            e.printStackTrace();
+            logger.error(e);
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.error(e);
         }
         return null;
     }
@@ -354,6 +385,7 @@ public class DeviceManagementClient implements IDeviceManagement {
     @Override
     public LSLCResource findResource(String path, RCOperation op, String value) {
 
+        logger.debug("find resource called");
         // construct endpoint for resource search
         String findResourceEndpoint = ResourceCatalogEndpoint.toString() + "/resource/" + path + "/" + op.toString().toLowerCase() + "/" + value;
 
@@ -363,16 +395,17 @@ public class DeviceManagementClient implements IDeviceManagement {
             URI uri = new URI(url.getProtocol(), url.getUserInfo(), url.getHost(), url.getPort(), url.getPath(), url.getQuery(), url.getRef());
 
             String resourceRAW = getRawData(new URL(uri.toASCIIString()));
-            System.out.println("find resource RAW: " + resourceRAW);
-            return parseResource(resourceRAW);
+            LSLCResource parsedResource = parseResource(resourceRAW);
+            logger.debug("resource retrieved and parsed");
+            return parsedResource;
         } catch (MalformedURLException e) {
-            e.printStackTrace();
+            logger.error(e);
         } catch (URISyntaxException e) {
-            e.printStackTrace();
+            logger.error(e);
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.error(e);
         } catch (ParseException e) {
-            e.printStackTrace();
+            logger.error(e);
         }
 
         return null;
@@ -381,6 +414,7 @@ public class DeviceManagementClient implements IDeviceManagement {
     @Override
     public List <LSLCResource> findResources(String path, RCOperation op, String value, int page, int perPage) {
 
+        logger.debug("find resources called");
         // construct endpoint for resource search
         String findResourcesEndpoint = ResourceCatalogEndpoint.toString() + "/resources/" + path + "/" + op.toString().toLowerCase() + "/" + value+"?page="+page+"&per_page="+perPage;;
         try {
@@ -388,7 +422,6 @@ public class DeviceManagementClient implements IDeviceManagement {
             URI uri = new URI(url.getProtocol(), url.getUserInfo(), url.getHost(), url.getPort(), url.getPath(), url.getQuery(), url.getRef());
 
             String devicesRAW = getRawData(new URL(uri.toASCIIString()));
-            System.out.println("find resourceS RAW: " + devicesRAW);
 
             ArrayList<LSLCDevice> parsedDevices = parseDevices(devicesRAW);
 
@@ -398,21 +431,24 @@ public class DeviceManagementClient implements IDeviceManagement {
                     foundResources.add(parsedDevices.get(i).resources.get(j));
                 }
             }
+            logger.debug("resources retrieved and parsed");
             return foundResources;
 
             //return parseResource(resourceRAW);
         } catch (MalformedURLException e) {
-            e.printStackTrace();
+            logger.error(e);
         } catch (URISyntaxException e) {
-            e.printStackTrace();
+            logger.error(e);
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.error(e);
         }
 
         return null;
     }
 
     public String createRegistrationPayload(LSLCDevice aDevice, String aDeviceID) {
+
+        logger.debug("registration payload creation of device "+aDeviceID+" intialized");
 
         int totalResources = aDevice.resources.size();
 
@@ -427,7 +463,6 @@ public class DeviceManagementClient implements IDeviceManagement {
         // create empty array of  resources
         JsonArray resourcesArray = new JsonArray();
 
-
         // iterate over all resources from device
 
         for (int i = 0; i < totalResources; i++) {
@@ -437,8 +472,6 @@ public class DeviceManagementClient implements IDeviceManagement {
             aResource.addProperty("id", hostID + "/" + aDevice.name + "/" + UUID.randomUUID().toString());
             aResource.addProperty("type", aDevice.resources.get(i).type);
             aResource.addProperty("name", aDevice.resources.get(i).name);
-            //aResource.addProperty("device", aDevice.resources.get(i).device);
-
 
             // create array of protocols
             JsonArray resourceProtocolArray = new JsonArray();
@@ -459,7 +492,6 @@ public class DeviceManagementClient implements IDeviceManagement {
                 JsonArray methods = new JsonArray();
                 // interate over all possible protocol methods
                 for (int z = 0; z < aDevice.resources.get(i).protocols.get(j).methods.size(); z++) {
-                    JsonObject method = new JsonObject();
                     JsonPrimitive item = new JsonPrimitive(aDevice.resources.get(i).protocols.get(j).methods.get(z));
                     methods.add(item);
                     protocol.add("methods", methods);
@@ -492,6 +524,7 @@ public class DeviceManagementClient implements IDeviceManagement {
         }
 
         aRegistration.add("resources", resourcesArray);
+        logger.debug("registration payload created");
         return aRegistration.toString();
 
 
@@ -499,6 +532,7 @@ public class DeviceManagementClient implements IDeviceManagement {
 
     public String getRawData(URL restResource) throws IOException {
 
+        logger.debug("get raw data called");
         HttpURLConnection connection = (HttpURLConnection) restResource.openConnection();
         connection.setDoInput(true);
         connection.setDoOutput(true);
@@ -512,20 +546,25 @@ public class DeviceManagementClient implements IDeviceManagement {
         }
         br.close();
         connection.disconnect();
+        logger.debug("raw data read from RC");
 
         return jsonString.toString();
 
     }
 
     // TODO workaround for RC bug. cutting of the /rc/
-    private String applyIDFix(String buggyID) {
-        System.out.println("[WARN] fixing buggy ID : " + buggyID);
-        return buggyID.substring(4, buggyID.length());
+    private String applyIDFix(String buggyID) throws IOException {
+        logger.warn("buggy ID detected: " + buggyID);
+        updateRCPrefix();
+        // cut off the prefix from actual device ID
+        String fixedID = buggyID.substring(RCPrefix.length(), buggyID.length());
+        logger.warn("fixed ID: "+fixedID);
+        return fixedID;
     }
 
-    public static LSLCResource parseResource(String rawResourceString) throws ParseException {
+    public LSLCResource parseResource(String rawResourceString) throws ParseException {
 
-        System.out.println("raw resource :"+rawResourceString);
+        logger.debug("parse resource called");
 
         JsonParser parser = new JsonParser();
         JsonElement parsedElement = parser.parse(rawResourceString);
@@ -578,13 +617,14 @@ public class DeviceManagementClient implements IDeviceManagement {
             aResource.representation = newRepresentation;
 
         }
+        logger.debug("resource parsed");
         return aResource;
 
     }
 
-    public static LSLCDevice parseDevice(String rawDeviceString) throws ParseException {
+    public LSLCDevice parseDevice(String rawDeviceString) throws ParseException {
 
-        System.out.println("parsing device raw string : "+rawDeviceString);
+        logger.debug("parse device called");
 
         JsonParser parser = new JsonParser();
         JsonElement parsedElement = parser.parse(rawDeviceString);
@@ -598,7 +638,6 @@ public class DeviceManagementClient implements IDeviceManagement {
         aDevice.ttl = deviceJSON.get("ttl").getAsInt();
         aDevice.description = deviceJSON.get("description").getAsString();
         aDevice.id = deviceJSON.get("id").getAsString();
-        System.out.println("parsing device id: "+aDevice.id);
 
         // read resources from array
         if (deviceJSON.has("resources")) {
@@ -610,9 +649,10 @@ public class DeviceManagementClient implements IDeviceManagement {
                 aDevice.resources.add(aResource);
             }
         }else{
-            System.out.println("[WARN] device has no resources");
+            logger.warn("device has no resources");
         }
 
+        logger.debug("device parsed");
         return aDevice;
     }
 

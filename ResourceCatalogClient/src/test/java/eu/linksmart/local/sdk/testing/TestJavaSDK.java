@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.Map;
 
 import static junit.framework.Assert.*;
+import static junit.framework.Assert.assertEquals;
 
 /**
  * Created by carlos on 27.10.14.
@@ -65,15 +66,16 @@ public class TestJavaSDK {
     @Test
     public void parseDevice() throws ParseException {
 
+
         // offline device parsing test
         // tests parsing of a JSON device raw string
-        LSLCDevice parsedDevice = DeviceManagementClient.parseDevice(rawDevice);
+        LSLCDevice parsedDevice = client.parseDevice(rawDevice);
         device.id="Leshy/TESTING-PARSE";
         assertTrue("parsed not equals the original", isRetrivedInstanceIdentical(parsedDevice,device.id));
     }
     @Ignore
     public void parseResource() throws ParseException {
-        LSLCResource parsedResource = DeviceManagementClient.parseResource(rawResource);
+        LSLCResource parsedResource = client.parseResource(rawResource);
         assertEquals(device.resources.get(0).name,parsedResource.name);
     }
 
@@ -128,19 +130,20 @@ public class TestJavaSDK {
         System.out.println("[INTEGRATION] registered device id: "+regID);
 
         List<LSLCResource> FromRC = client.findResources("name", RCOperation.CONTAINS, device.resources.get(0).name, 1, 100);
-        //System.out.println("[INTEGRATION] device id: "+deviceFromRC.id);
         client.delete(regID);
+        System.out.println("[INTEGRATION] device removed");
 
-//        // attach parsed resource to previous device for comparision, since comparision method works only on device instances
-//        LSLCDevice deviceCopy = device;
-//        deviceCopy.id = regID;
-//        // here the retrieved resource is injected into a device
-//        deviceCopy.resources.set(0,FromRC);
-//
-//        // test if all fields were retrieved properly
-//        assertTrue("returned device not equal to original one", isRetrivedInstanceIdentical(deviceCopy,regID));
-//        System.out.println("[INTEGRATION] device removed");
-//        System.out.println("[INTEGRATION] ****************************************");
+        // compare a few values form retrieved resources
+        assertEquals(device.resources.get(0).name,FromRC.get(0).name);
+        assertEquals(device.resources.get(0).representation.contentType.toString(),FromRC.get(0).representation.contentType.toString());
+        assertEquals(device.resources.get(0).protocols.get(0).methods.get(0),FromRC.get(0).protocols.get(0).methods.get(0));
+        assertEquals(device.resources.get(0).protocols.get(0).contentTypes.get(0).toString(), FromRC.get(0).protocols.get(0).contentTypes.get(0).toString());
+        assertEquals(device.resources.get(0).protocols.get(0).endpoint.get("fancy-alien-broker-from-hell"),FromRC.get(0).protocols.get(0).endpoint.get("fancy-alien-broker-from-hell"));
+        assertEquals(device.resources.get(0).protocols.get(0).type,FromRC.get(0).protocols.get(0).type);
+
+
+
+        System.out.println("[INTEGRATION] ****************************************");
 
     }
 
