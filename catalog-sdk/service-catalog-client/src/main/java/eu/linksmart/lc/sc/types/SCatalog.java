@@ -16,7 +16,7 @@ public class SCatalog {
 	@Expose
 	private String type;
 	@Expose
-	private List<Object> services = new ArrayList<Object>();
+	private List<Service> services = new ArrayList<Service>();
 	@Expose
 	private Integer page;
 	@SerializedName("per_page")
@@ -49,11 +49,11 @@ public class SCatalog {
 		this.type = type;
 	}
 	
-	public List<Object> getServices() {
+	public List<Service> getServices() {
 		return services;
 	}
 	
-	public void setServices(List<Object> services) {
+	public void setServices(List<Service> services) {
 		this.services = services;
 	}
 	

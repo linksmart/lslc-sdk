@@ -18,7 +18,7 @@ public class Catalog {
 	@Expose
 	private Devices devices;
 	@Expose
-	private List<Object> resources = new ArrayList<Object>();
+	private List<Resource> resources = new ArrayList<Resource>();
 	@Expose
 	private Integer page;
 	@SerializedName("per_page")
@@ -59,11 +59,11 @@ public class Catalog {
 		this.devices = devices;
 	}
 	
-	public List<Object> getResources() {
+	public List<Resource> getResources() {
 		return resources;
 	}
 	
-	public void setResources(List<Object> resources) {
+	public void setResources(List<Resource> resources) {
 		this.resources = resources;
 	}
 	
