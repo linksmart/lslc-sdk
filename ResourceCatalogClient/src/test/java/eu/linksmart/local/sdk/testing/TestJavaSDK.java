@@ -22,8 +22,8 @@ import static junit.framework.Assert.assertEquals;
  */
 public class TestJavaSDK {
 
-    public String rawResource ="{\"id\":\"/rc/Leshy/TESTING-FINDDEVICE/46237b21-4737-491a-964a-efd0ed4157d2\",\"type\":\"Resource\",\"name\":\"Resource A\",\"meta\":null,\"protocols\":[{\"type\":\"REST\",\"endpoint\":{\"another-void-alltypes-possible-broker-from-hell\":\"???:::/SH-G/¿X\",\"fancy-alien-broker-from-hell\":\"320uff0:::////30402045r???\"},\"methods\":[\"GET\"],\"content-types\":[\"text/plain\"]}],\"representation\":{\"text/plain\":{\"type\":\"number\"}},\"device\":\"/rc/Leshy/TESTING-FINDDEVICE\"}";
-    public String rawDevice   ="{\"id\":\"Leshy/TESTING-PARSE\",\"type\":\"Device\",\"name\":\"DeviceA\",\"meta\":null,\"description\":\"Device registered from Java DeviceManagementClient\",\"ttl\":60,\"created\":\"2014-11-03T14:35:44.593930162+01:00\",\"updated\":\"2014-11-03T14:35:44.593930162+01:00\",\"expires\":\"2014-11-03T14:36:44.593930162+01:00\",\"resources\":[{\"id\":\"/rc/Leshy/TESTING-GETDEVICE/97f1e876-dee0-49e7-8d07-fdafb713c9e4\",\"type\":\"Resource\",\"name\":\"Resource A\",\"meta\":null,\"protocols\":[{\"type\":\"REST\",\"endpoint\":{\"another-void-alltypes-possible-broker-from-hell\":\"???:::/SH-G/¿X\",\"fancy-alien-broker-from-hell\":\"320uff0:::////30402045r???\"},\"methods\":[\"GET\"],\"content-types\":[\"text/plain\"]}],\"representation\":{\"text/plain\":{\"type\":\"number\"}},\"device\":\"/rc/Leshy/TESTING-GETDEVICE\"}],\"page\":1,\"per_page\":100,\"total\":1}";
+    public String rawResource ="{\"id\":\"/rc/Leshy/TESTING-FINDDEVICE/46237b21-4737-491a-964a-efd0ed4157d2\",\"type\":\"Resource\",\"name\":\"Resource A\",\"meta\":null,\"protocols\":[{\"type\":\"REST\",\"endpoint\":{\"another-void-alltypes-possible-broker-from-hell\":\"???:::/SH-G/X\",\"fancy-alien-broker-from-hell\":\"320uff0:::////30402045r???\"},\"methods\":[\"GET\"],\"content-types\":[\"text/plain\"]}],\"representation\":{\"text/plain\":{\"type\":\"number\"}},\"device\":\"/rc/Leshy/TESTING-FINDDEVICE\"}";
+    public String rawDevice   ="{\"id\":\"Leshy/TESTING-PARSE\",\"type\":\"Device\",\"name\":\"DeviceA\",\"meta\":null,\"description\":\"Device registered from Java DeviceManagementClient\",\"ttl\":60,\"created\":\"2014-11-03T14:35:44.593930162+01:00\",\"updated\":\"2014-11-03T14:35:44.593930162+01:00\",\"expires\":\"2014-11-03T14:36:44.593930162+01:00\",\"resources\":[{\"id\":\"/rc/Leshy/TESTING-GETDEVICE/97f1e876-dee0-49e7-8d07-fdafb713c9e4\",\"type\":\"Resource\",\"name\":\"Resource A\",\"meta\":null,\"protocols\":[{\"type\":\"REST\",\"endpoint\":{\"another-void-alltypes-possible-broker-from-hell\":\"???:::/SH-G/X\",\"fancy-alien-broker-from-hell\":\"320uff0:::////30402045r???\"},\"methods\":[\"GET\"],\"content-types\":[\"text/plain\"]}],\"representation\":{\"text/plain\":{\"type\":\"number\"}},\"device\":\"/rc/Leshy/TESTING-GETDEVICE\"}],\"page\":1,\"per_page\":100,\"total\":1}";
 
     public LSLCDevice device;
     DeviceManagementClient client;
@@ -31,9 +31,9 @@ public class TestJavaSDK {
     @Before
     public void setupDeviceRegistrationDocument() throws MalformedURLException, ParseException {
 
-        //client = new DeviceManagementClient(new URL("http://localhost:7778/rc"));
+        client = new DeviceManagementClient(new URL("http://localhost:7778/rc"));
         //client = new DeviceManagementClient(new URL("http://gando.fit.fraunhofer.de:8091/rc"));
-        client = new DeviceManagementClient(new URL("http://192.168.56.101:8081/rc"));
+        //client = new DeviceManagementClient(new URL("http://192.168.56.101:8081/rc"));
 
 
         ContentType aContentType = new ContentType("text/plain");
@@ -51,7 +51,7 @@ public class TestJavaSDK {
         representation.type = new String("number");
 
         protocol.endpoint.put("fancy-alien-broker-from-hell", "320uff0:::////30402045r???");
-        protocol.endpoint.put("another-void-alltypes-possible-broker-from-hell","???:::/SH-G/¿X");
+        protocol.endpoint.put("another-void-alltypes-possible-broker-from-hell","???:::/SH-G/X");
         protocol.type = new String("REST");
         protocol.methods.add("GET");
         protocol.contentTypes.add(new ContentType("text/plain"));
