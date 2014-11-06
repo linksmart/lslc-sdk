@@ -33,7 +33,7 @@ public class TestJavaSDK {
 
         //client = new DeviceManagementClient(new URL("http://localhost:7778/rc"));
         //client = new DeviceManagementClient(new URL("http://gando.fit.fraunhofer.de:8091/rc"));
-        client = new DeviceManagementClient(new URL("http://191.168.56.101:8081/rc"));
+        client = new DeviceManagementClient(new URL("http://192.168.56.101:8081/rc"));
 
 
         ContentType aContentType = new ContentType("text/plain");
