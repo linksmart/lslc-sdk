@@ -10,7 +10,7 @@ import javax.ws.rs.core.Response;
 public class ResourceCatalogClient
 {
 	
-	private String BASE_URL = "http://localhost:8080/rc";
+	private String BASE_URL = "http://localhost:8081/rc";
 	
     private Client client;
     

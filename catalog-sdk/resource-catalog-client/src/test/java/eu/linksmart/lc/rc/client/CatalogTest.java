@@ -6,8 +6,6 @@ import java.util.List;
 
 import org.junit.Test;
 
-import com.google.gson.Gson;
-
 import eu.linksmart.lc.rc.client.Comparison;
 import eu.linksmart.lc.rc.client.ResourceCatalog;
 import eu.linksmart.lc.rc.types.Catalog;
@@ -17,26 +15,46 @@ import eu.linksmart.lc.rc.types.Resource;
 
 public class CatalogTest {
 	
+	private String BASE_URL = "http://gando.fit.fraunhofer.de:8091/rc";
+	//private String BASE_URL = "http://192.168.56.101:8081/rc";
+	
 	@Test
 	public void testTypesBinding() {
 		
 		//
-		// creating registration & adding
+		// creating registration
 		//
 		Registration registration = DeviceBuilder.createRegistration("testdc", "device-b", "resource-b", "http://localhost:8080/");
 		
-		System.out.println("Gson generated registration json: " + new Gson().toJson(registration));
+		//assertNotNull(DeviceBuilder.createRegistration("/registration.json"));
 		
 		String deviceID = registration.getId();
 		String resourceID = registration.getResources().get(0).getId();
 		
+		//
+		// set URL of the catalog service
+		//
+		ResourceCatalog.setURL(BASE_URL);
+		
+		//
+		// add device registration
+		//
 		assertTrue(ResourceCatalog.add(registration));
 		
+		//
+		// update device registration
+		//
 		assertTrue(ResourceCatalog.update(deviceID, registration));
 		
+		//
+		// get device
+		//
 		Device device = ResourceCatalog.get(deviceID);
 		System.out.println("get-device - id: " + device.getId() + " - name: " + device.getName());
 		
+		//
+		// get resource
+		//
 		Resource resource = ResourceCatalog.getResource(resourceID);
 		System.out.println("get-resource - id: " + resource.getId() + " - device-id: " + resource.getDevice());
 		
@@ -45,8 +63,8 @@ public class CatalogTest {
 		//
 		Catalog catalog = ResourceCatalog.getDevices(1,100);
 		System.out.println("get-devices - total devices: " + catalog.getDevices().size() + " - total resources: " + catalog.getResources().size());
-		for (String name : catalog.getDevices().keySet()) {
-            Device searched_device = (Device) (catalog.getDevices().get(name));
+		for (String key : catalog.getDevices().keySet()) {
+            Device searched_device = (Device) (catalog.getDevices().get(key));
             System.out.println("get-devices - id: " + searched_device.getId());
 		}
 		List<Resource> gdresources = catalog.getResources();
@@ -66,8 +84,8 @@ public class CatalogTest {
 		//
 		Catalog sdcatalog = ResourceCatalog.findDevices("name", Comparison.EQUALS.getCriteria(), "device-b", 1, 100);
 		System.out.println("find-devices: total devices: " + sdcatalog.getDevices().size() + " - total resources: " + sdcatalog.getResources().size());
-		for (String name : sdcatalog.getDevices().keySet()) {
-            Device searched_device = (Device) (sdcatalog.getDevices().get(name));
+		for (String key : sdcatalog.getDevices().keySet()) {
+            Device searched_device = (Device) (sdcatalog.getDevices().get(key));
             System.out.println("findDevices - id: " + searched_device.getId());
 		}
 		List<Resource> sdsresources = sdcatalog.getResources();
@@ -93,6 +111,9 @@ public class CatalogTest {
             System.out.println("find-resources - id: " + searched_resource.getId() + " - device" + searched_resource.getDevice());
 		}
 		
+		//
+		// delete device registration
+		//
 		assertTrue(ResourceCatalog.delete(deviceID));
 	}
 	

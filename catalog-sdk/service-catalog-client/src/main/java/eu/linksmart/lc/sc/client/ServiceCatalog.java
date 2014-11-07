@@ -10,7 +10,7 @@ import eu.linksmart.lc.sc.types.Service;
 
 public class ServiceCatalog {
 	
-	private static String BASE_URL = "http://gando.fit.fraunhofer.de:8090/sc";
+	private static String BASE_URL = "http://localhost:8082/sc";
 	
 	public static void setURL(String url) {
 		BASE_URL = url;

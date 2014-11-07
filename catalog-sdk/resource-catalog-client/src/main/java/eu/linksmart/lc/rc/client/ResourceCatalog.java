@@ -11,7 +11,7 @@ import eu.linksmart.lc.rc.types.Resource;
 
 public class ResourceCatalog {
 	
-	private static String BASE_URL = "http://gando.fit.fraunhofer.de:8091/rc";
+	private static String BASE_URL = "http://localhost:8081/rc";
 	
 	public static void setURL(String url) {
 		BASE_URL = url;

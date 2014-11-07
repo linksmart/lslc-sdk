@@ -14,18 +14,32 @@ import eu.linksmart.lc.sc.types.Service;
 
 public class ServiceCatalogTest {
 	
+	private String BASE_URL = "http://gando.fit.fraunhofer.de:8090/sc";
+	//private String BASE_URL = "http://192.168.56.101:8082/sc";
+	
 	@Test
 	public void testTypesBinding() {
 		
 		//
-		// create & add service registration
+		// create service registration
 		//
 		Registration registration = ServiceBuilder.createRegistration("testserver", "MqttBroker-b", "tcp://testserver.com:1883");
 		System.out.println("Gson generated registration json: " + new Gson().toJson(registration));
 		
+		//assertNotNull(ServiceBuilder.createRegistration("/registration.json"));
+		
+		//
+		// set URL of the catalog service
+		//
+		ServiceCatalog.setURL(BASE_URL);
+		
+		//
+		// add service registration
+		//
 		assertTrue(ServiceCatalog.add(registration));
 		
 		String serviceID = registration.getId();
+		
 		
 		//
 		// update service
