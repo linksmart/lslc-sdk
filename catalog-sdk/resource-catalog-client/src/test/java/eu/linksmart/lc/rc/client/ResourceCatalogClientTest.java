@@ -3,6 +3,8 @@ package eu.linksmart.lc.rc.client;
 import org.junit.Test;
 
 import java.io.File;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.Scanner;
 
 import static org.junit.Assert.assertNotNull;
@@ -81,8 +83,20 @@ public class ResourceCatalogClientTest {
 	}
 	
 	private String readFileContents(String fileName) {
-		
-		File jsonDataFile = new File((this.getClass().getResource((fileName)).getFile()));
+
+
+
+		URL aURL =this.getClass().getResource(fileName);
+		System.out.println("aURL :"+aURL.toString());
+		File jsonDataFile = null;
+		try {
+			jsonDataFile = new File(aURL.toURI());
+		} catch (URISyntaxException e) {
+			e.printStackTrace();
+		}
+		System.out.println("file :"+jsonDataFile.toString());
+
+		//File jsonDataFile = new File((this.getClass().getResource((fileName)).getFile()));
 		
 		StringBuilder fileContents = null;
 		Scanner scanner = null;
