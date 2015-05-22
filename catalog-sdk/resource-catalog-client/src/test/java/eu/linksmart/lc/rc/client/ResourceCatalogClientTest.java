@@ -1,18 +1,20 @@
 package eu.linksmart.lc.rc.client;
 
-import static org.junit.Assert.*;
+import org.junit.Test;
 
 import java.io.File;
 import java.util.Scanner;
 
-import org.junit.Test;
-
-import eu.linksmart.lc.rc.client.ResourceCatalogClient;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 public class ResourceCatalogClientTest {
 	
-	private String BASE_URL = "http://gando.fit.fraunhofer.de:8091/rc";
+	//private String BASE_URL = "http://gando.fit.fraunhofer.de:8091/rc";
+	private String BASE_URL = "http://localhost:8081/rc";
 	//private String BASE_URL = "http://192.168.56.101:8081/rc";
+
+
 	
 	@Test
 	public void testCatalogClient() {

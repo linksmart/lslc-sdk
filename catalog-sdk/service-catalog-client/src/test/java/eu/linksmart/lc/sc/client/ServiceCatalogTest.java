@@ -1,20 +1,19 @@
 package eu.linksmart.lc.sc.client;
 
-import static org.junit.Assert.assertTrue;
-
-import java.util.List;
-
-import org.junit.Test;
-
 import com.google.gson.Gson;
-
 import eu.linksmart.lc.sc.types.Registration;
 import eu.linksmart.lc.sc.types.SCatalog;
 import eu.linksmart.lc.sc.types.Service;
+import org.junit.Test;
+
+import java.util.List;
+
+import static org.junit.Assert.assertTrue;
 
 public class ServiceCatalogTest {
 	
-	private String BASE_URL = "http://gando.fit.fraunhofer.de:8090/sc";
+	private String BASE_URL = "http://localhost:8082/sc";
+	//private String BASE_URL = "http://gando.fit.fraunhofer.de:8090/sc";
 	//private String BASE_URL = "http://192.168.56.101:8082/sc";
 	
 	@Test
