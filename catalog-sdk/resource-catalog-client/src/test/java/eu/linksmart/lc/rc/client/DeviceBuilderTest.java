@@ -1,12 +1,12 @@
 package eu.linksmart.lc.rc.client;
 
-import static org.junit.Assert.*;
-
-import java.io.File;
-
 import org.junit.Test;
 
-import eu.linksmart.lc.rc.client.DeviceBuilder;
+import java.io.File;
+import java.net.URISyntaxException;
+import java.net.URL;
+
+import static org.junit.Assert.assertNotNull;
 
 public class DeviceBuilderTest {
 	
@@ -14,8 +14,17 @@ public class DeviceBuilderTest {
 	public void testDeviceBuilder() {
 		
 		assertNotNull(DeviceBuilder.createRegistration("/registration.json"));
-		
-		File jsonFile = new File((this.getClass().getResource(("/registration.json")).getFile()));
+
+		URL aURL =this.getClass().getResource("/registration.json");
+		System.out.println("aURL :"+aURL.toString());
+		File jsonFile = null;
+		try {
+			jsonFile = new File(aURL.toURI());
+		} catch (URISyntaxException e) {
+			e.printStackTrace();
+		}
+
+		//File jsonFile = new File((this.getClass().getResource(("/registration.json")).getFile()));
 		assertNotNull(DeviceBuilder.createRegistration(jsonFile));
 		
 		assertNotNull(DeviceBuilder.createRegistration("testdc", "device-b", "resource-b", "http://localhost:8080/"));	
