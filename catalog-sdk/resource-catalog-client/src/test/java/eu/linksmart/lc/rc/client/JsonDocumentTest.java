@@ -1,17 +1,12 @@
 package eu.linksmart.lc.rc.client;
 
+import org.junit.Test;
+
+import javax.json.*;
 import java.io.File;
 import java.io.FileReader;
-
-import javax.json.Json;
-import javax.json.JsonArray;
-import javax.json.JsonNumber;
-import javax.json.JsonObject;
-import javax.json.JsonReader;
-import javax.json.JsonString;
-import javax.json.JsonValue;
-
-import org.junit.Test;
+import java.net.URISyntaxException;
+import java.net.URL;
 
 public class JsonDocumentTest {
 	
@@ -19,7 +14,18 @@ public class JsonDocumentTest {
     public void testJsonDocument() {
     	
     	try {
-    		File jsonDataFile = new File((this.getClass().getResource(("/registration.json")).getFile()));
+
+
+			URL aURL =this.getClass().getResource("/registration.json");
+			System.out.println("aURL :"+aURL.toString());
+			File jsonDataFile = null;
+			try {
+				jsonDataFile = new File(aURL.toURI());
+			} catch (URISyntaxException e) {
+				e.printStackTrace();
+			}
+
+    		//File jsonDataFile = new File((this.getClass().getResource(("/registration.json")).getFile()));
     		
     		JsonReader reader = Json.createReader(new FileReader(jsonDataFile));
         	//JsonStructure jsonst = reader.read();
