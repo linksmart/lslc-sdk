@@ -13,7 +13,6 @@ import static org.junit.Assert.assertTrue;
 public class ServiceCatalogClientTest {
 	
 	//private String BASE_URL = "http://gando.fit.fraunhofer.de:8090/sc";
-
 	private String BASE_URL = "http://localhost:8082/sc";
 	//private String BASE_URL = "http://192.168.56.101:8082/sc";
 	
