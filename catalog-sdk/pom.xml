@@ -4,12 +4,12 @@
     <parent>
 		<groupId>eu.linksmart.gc</groupId>
 		<artifactId>eu.linksmart.gc.osgi.component</artifactId>
-		<version>0.0.1-SNAPSHOT</version>
+		<version>0.0.1</version>
 	</parent>
     
     <groupId>eu.linksmart.lc</groupId>
     <artifactId>catalog-sdk</artifactId>
-    <version>0.0.2-SNAPSHOT</version>
+    <version>0.0.2</version>
          
     <name>Catalog SDK</name>
     
