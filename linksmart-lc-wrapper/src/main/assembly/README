@@ -1,0 +1,20 @@
+README 	
+
+General information
+	E3 DeviceConnector - OPC DA Interface
+
+AUTHORS 	Hassan Rasheed, Alexandr Krylovskiy
+
+ChangeLog
+
+NEWS
+
+INSTALL
+  	Install a 1.7 JDK. 
+  	
+Depending on OS either call "start.sh" or "start.bat" to start the client.
+
+
+COPYING / LICENSE 	see LICENSE for details
+
+BUGS
