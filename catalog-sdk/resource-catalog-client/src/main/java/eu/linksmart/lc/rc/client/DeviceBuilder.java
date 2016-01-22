@@ -50,7 +50,7 @@ public class DeviceBuilder {
 		registration.setType("Device");
 		registration.setName(deviceName);
 		registration.setDescription(deviceID + "description");
-		registration.setTtl(30);
+		registration.setTtl(60);
 		
 		String resourceID = deviceID + "/" + resourceName;
 		
@@ -70,6 +70,67 @@ public class DeviceBuilder {
 		methodsList.add("GET"); 
 		protocol.setMethods(methodsList);
 		
+		List<String> contentTypeList = new ArrayList<String>();
+		contentTypeList.add("text/plain"); 
+		protocol.setContentTypes(contentTypeList);
+		
+		List<Protocol> protocolList = new ArrayList<Protocol>();
+		protocolList.add(protocol);
+		resource.setProtocols(protocolList);
+		
+		Representation representation = new Representation();
+		TextPlain repre = new TextPlain();
+		repre.setType("string");
+		representation.setTextPlain(repre);
+		resource.setRepresentation(representation);
+		
+		List<Resource> resources = new ArrayList<Resource>();
+		resources.add(resource);
+		registration.setResources(resources);
+		
+		return registration;
+	}
+	
+	/*
+	 * creates a device registration for given ID & Name with one resource for protocol type MQTT 
+	 */
+	public static Registration createRegistration(String deviceConnectorID, String deviceName, String resourceName, String brokerURL, String topic) {
+		
+		Registration registration = new Registration();
+		
+		String deviceID = deviceConnectorID + "/" + deviceName;
+		
+		registration.setId(deviceID);
+		registration.setType("Device");
+		registration.setName(deviceName);
+		registration.setDescription(deviceID + "description");
+		registration.setTtl(60);
+		
+		String resourceID = deviceID + "/" + resourceName;
+		
+		Resource resource = new Resource();
+		resource.setId(resourceID);
+		resource.setType("Resource");
+		resource.setName(resourceName);
+		
+		Protocol protocol = new Protocol();
+		protocol.setType("MQTT");
+		
+		Endpoint endpoint = new Endpoint();
+		endpoint.setBroker(brokerURL);
+		endpoint.setTopic(topic);
+		
+		protocol.setEndpoint(endpoint);
+		
+		List<String> methodsList = new ArrayList<String>();
+		methodsList.add("PUB"); 
+		methodsList.add("SUB");
+		
+		protocol.setMethods(methodsList);
+		
+		//
+		//does it required?
+		// 
 		List<String> contentTypeList = new ArrayList<String>();
 		contentTypeList.add("text/plain"); 
 		protocol.setContentTypes(contentTypeList);
