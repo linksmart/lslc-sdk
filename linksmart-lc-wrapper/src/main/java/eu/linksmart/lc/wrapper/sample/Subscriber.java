@@ -52,10 +52,6 @@ public class Subscriber {
 	
 	class Notifier extends BrokerClient {
 
-		public Notifier() {
-			super();
-		}
-		
 		public Notifier(String brokerUrl) {
 	    	super(brokerUrl);
 	    }

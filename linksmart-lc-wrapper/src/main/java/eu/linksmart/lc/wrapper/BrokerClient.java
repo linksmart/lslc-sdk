@@ -2,125 +2,143 @@ package eu.linksmart.lc.wrapper;
 
 import org.eclipse.paho.client.mqttv3.*;
 import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
-
-import com.google.gson.Gson;
-
-import java.util.Properties;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class BrokerClient implements MqttCallback {
+	
+	private final Logger LOG = LoggerFactory.getLogger(BrokerClient.class);
 
     private MqttClient mqttClient;
 
-    private String brokerUrl = "tcp://localhost:1883";
+    private String brokerEndpoint;
+	private String mqttUsername;
+	private String mqttPasword;
+    private int qos = 0;
+    private String clientId = "ls-mqtt-client-" + System.currentTimeMillis();
     
-    private final String clientId = "satisfactory-fit-broker-client";
-    private final int qos = 0;
-    
-    private boolean isConnected = false;
-
-    public BrokerClient() {
+    public BrokerClient(String brokerEndpoint) {
+    	this.brokerEndpoint = brokerEndpoint;
     	connect();
     }
     
-    public BrokerClient(String brokerUrl) {
-    	this.brokerUrl = brokerUrl;
+    public BrokerClient(String brokerEndpoint, String mqttUsername, String mqttPasword, int qos) {
+    	this.brokerEndpoint = brokerEndpoint;
+    	this.mqttUsername = mqttUsername;
+    	this.mqttPasword = mqttPasword;
+    	this.qos = qos;
     	connect();
     }
     
     public void connect() {
     	
-    	if (isConnected)
-    		return;
+    	if (mqttClient != null) {
+    		if(mqttClient.isConnected())
+    			return;
+    	}
     	
     	try {
     		initBrokerConnection();
         } catch (MqttException e) {
-            System.out.println("error connecting to the event broker. will retry ...");
+        	LOG.error("unable to connect to the mqtt broker: " + e.getMessage());
         }
     	
-        if (mqttClient != null && mqttClient.isConnected()) {
-            isConnected = true;
+        if (mqttClient != null && mqttClient.isConnected()) 
             mqttClient.setCallback(this);
-        } else {
-            System.out.println("Could not initialize broker client. Will retry ...");
-            try {
-                Thread.sleep(3 * 1000);
-            } catch (InterruptedException e) {
-                System.out.println("Interrupted while trying to reconnect");
-            }
-        }
+    	
     }
     
     private void initBrokerConnection() throws MqttException {
     	
+    	LOG.info("connecting to the mqtt broker: " + brokerEndpoint);
+    	
         MemoryPersistence persistence = new MemoryPersistence();
-        String clientID = clientId + "-" + System.currentTimeMillis();
-
+        
+        mqttClient = new MqttClient(brokerEndpoint, clientId, persistence);
+        
         MqttConnectOptions connOpts = new MqttConnectOptions();
         connOpts.setCleanSession(true);
-
-        // Authenticate if configured
         
-        mqttClient = new MqttClient(brokerUrl, clientID, persistence);
-
-        try {
-            System.out.println("connecting to the event broker: " + brokerUrl);
-            mqttClient.connect(connOpts);
-            System.out.println("connected to the event broker");
-        } catch(MqttException e) {
-            e.printStackTrace();
-            System.err.println("unable to connect to the event broker: " + e.getMessage());
+        if (mqttUsername != null && mqttPasword != null) {
+            connOpts.setUserName(mqttUsername);
+            connOpts.setPassword(mqttPasword.toCharArray());
         }
-    }
-    
-    public void subscribe(final String mqttTopic) {
-    	if (!isConnected) {
-    		System.err.println("event broker is not connected, can't subscribe to a topic.");
-    		return;
-    	}
-    	try {
-			mqttClient.subscribe(mqttTopic);
-		} catch (MqttException e) {
-			System.err.println("unable to subscribe to a topic [" + mqttTopic + "] reason: " + e.getMessage());
-		}
-    }
-
-    public void publish(final String mqttTopic, Properties props) {
-        // Create SenML message and marshal it into JSON
-        try {
-        	SenMLMessage senMLMessage = new SenMLMessage(props);
-            String strSenML = new Gson().toJson(senMLMessage);
-            publish(mqttTopic, strSenML);
-        } catch (Exception e) {
-            System.err.printf("error parsing/marshalling message to SenML: %s **discarded**\n", e.getMessage());
-        }  
+        
+        mqttClient.connect(connOpts);
+        
+        LOG.info("connected to the mqtt broker: " + mqttClient.isConnected() + " - " + clientId);
     }
     
     public void publish(final String mqttTopic, final String message) {
     	publish(mqttTopic, message.getBytes());
     }
     
-    private void publish(final String mqttTopic, byte[] payload) {
-    	if (!isConnected) {
-    		System.err.println("event broker is not connected, can't publish to the topic [" + mqttTopic + "]");
+    public void publish(final String mqttTopic, final byte[] payload) {
+    	if (mqttClient == null || !(mqttClient.isConnected())) {
+    		LOG.error("mqtt client is not connected, can't publish to the topic [" + mqttTopic + "]");
     		return;
     	}
+    			
     	if (payload != null) {
             try {
-            	MqttMessage message = new MqttMessage(payload);
-                message.setQos(qos);
-            	mqttClient.publish(mqttTopic, message);
+            	mqttClient.publish(mqttTopic, payload, this.qos, false);
             } catch (MqttException e) {
-                System.err.printf("error publishing a message to event broker: %s\n", e.getMessage());
+                LOG.error("error publishing a message to the mqtt broker reason: " + e.getMessage());
             }
         }
     }
-
+    
+    public void subscribe(final String mqttTopic) {
+    	if (mqttClient == null || !(mqttClient.isConnected())) {
+    		LOG.error("mqtt client is not connected, can't subscribe to the topic [" + mqttTopic + "]");
+    		return;
+    	}
+    	
+    	try {
+			mqttClient.subscribe(mqttTopic);
+		} catch (MqttException e) {
+			LOG.error("unable to subscribe to a topic [" + mqttTopic + "] reason: " + e.getMessage());
+		}
+    }
+    
+    public void subscribe(final String[] mqttTopics) {
+    	if (mqttClient == null || !(mqttClient.isConnected())) {
+    		LOG.error("mqtt client is not connected, can't subscribe with topics array [" + mqttTopics.length + "]");
+    		return;
+    	}
+    	
+    	try {
+			mqttClient.subscribe(mqttTopics);
+		} catch (MqttException e) {
+			LOG.error("unable to subscribe to topics [" + mqttTopics + "] reason: " + e.getMessage());
+		}
+    }
+    
+    public void disconnect() {
+    	if(mqttClient != null) {
+    		if (mqttClient.isConnected()) {
+                try {
+                    mqttClient.disconnect();
+                } catch (MqttException e) {
+                	LOG.error("error disconnecting from the event broker: " + e.getMessage());
+                }
+                LOG.error("disconnected from the mqtt broker - " + clientId);
+            }
+    	}
+    }
+    
     @Override
     public void connectionLost(Throwable throwable) {
-        System.out.println("lost connection to the event broker. Will try to reconnect");
-        isConnected = false;
+        LOG.error("lost connection to the mqtt broker. will try to reconnect");
+        boolean isConnected = false;
+        int numOfTries = 0;
+        int maxNumOfTries = 10;
         while (!isConnected) {
+        	if(numOfTries > maxNumOfTries) {
+        		LOG.error("unable to connect to the broker in maximum number of tries: " + maxNumOfTries);
+        		return;
+          	}
+        	numOfTries++;
             try {
             	initBrokerConnection();
                 if (mqttClient != null && mqttClient.isConnected()) {
@@ -128,37 +146,26 @@ public class BrokerClient implements MqttCallback {
                     mqttClient.setCallback(this);
                 }
                 else 
-                    System.out.println("could not initialize event broker client. Will retry ...");
+                    LOG.error("could not connect to the mqtt broker. will retry ...");
             } catch (MqttException e) {
-                System.out.println("error connecting to the event broker. Will retry ...");
+                LOG.error("error connecting to the mqtt broker. will retry in 3 seconds ...");
             }
             try {
-                Thread.sleep(3 * 1000);
+                Thread.sleep(5 * 1000);
             } catch (InterruptedException e) {
-                System.out.println("interrupted while trying to reconnect");
+                LOG.error("interrupted while trying to reconnect");
+                return;
             }
         }
     }
-
+    
     @Override
     public void messageArrived(String topic, MqttMessage mqttMessage) throws Exception {
-    	System.out.println("brokerClient-notify: topic - " + topic + " - msg - " + mqttMessage);
+    	// here comes the notifications for subscriptions
+    	// one can also implement own callback handler 
     }
 
     @Override
     public void deliveryComplete(IMqttDeliveryToken iMqttDeliveryToken) {}
-
-    public void disconnect() {
-    	if(isConnected) {
-    		if (mqttClient != null && mqttClient.isConnected()) {
-                try {
-                    mqttClient.disconnect();
-                    isConnected = false;
-                } catch (MqttException e) {
-                    System.err.printf("error disconnecting from the event broker: %s\n", e.getMessage());
-                }
-                System.out.println("disconnected from the event broker.");
-            }
-    	}
-    }
+    
 }
