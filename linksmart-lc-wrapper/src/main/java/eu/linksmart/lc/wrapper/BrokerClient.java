@@ -122,7 +122,7 @@ public class BrokerClient implements MqttCallback {
                 } catch (MqttException e) {
                 	LOG.error("error disconnecting from the event broker: " + e.getMessage());
                 }
-                LOG.error("disconnected from the mqtt broker - " + clientId);
+                LOG.info("disconnected from the mqtt broker - " + clientId);
             }
     	}
     }
