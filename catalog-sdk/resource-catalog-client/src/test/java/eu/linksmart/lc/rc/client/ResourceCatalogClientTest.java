@@ -12,13 +12,9 @@ import static org.junit.Assert.assertTrue;
 
 public class ResourceCatalogClientTest {
 	
-	//private String BASE_URL = "http://gando.fit.fraunhofer.de:8091/rc";
 	private String BASE_URL = "http://localhost:8081/rc";
-	//private String BASE_URL = "http://192.168.56.101:8081/rc";
-
-
 	
-	@Test
+	//@Test
 	public void testCatalogClient() {
 		
 		String DEVICE_ID = "testdc/device1";

@@ -23,6 +23,7 @@ public class ResourceCatalog {
 	
 	public static Device get(String deviceID) {
 		String deviceJsonString = ResourceCatalogClient.getInstance(BASE_URL).get(deviceID);
+		System.out.println(deviceJsonString);
 		return new Gson().fromJson(deviceJsonString, Device.class);
 	}
 	
@@ -77,15 +78,19 @@ public class ResourceCatalog {
 	}
 	
 	private static void adjustDevicesId(Catalog catalog) {
+		if(catalog.getDevices() == null)
+			return;
 		for (String key : catalog.getDevices().keySet()) {
             Device device = (Device) (catalog.getDevices().get(key));
             device.setId(adjustDeviceId(device.getId()));
 		}
 		List<Resource> resources = catalog.getResources();
-		for (int i = 0; i < resources.size(); i++) {
-            Resource resource = (resources.get(i));
-            resource.setId(adjustDeviceId(resource.getId()));
-            resource.setDevice(adjustDeviceId(resource.getDevice()));
+		if(resources != null) {
+			for (int i = 0; i < resources.size(); i++) {
+	            Resource resource = (resources.get(i));
+	            resource.setId(adjustDeviceId(resource.getId()));
+	            resource.setDevice(adjustDeviceId(resource.getDevice()));
+			}
 		}
 	}
 	

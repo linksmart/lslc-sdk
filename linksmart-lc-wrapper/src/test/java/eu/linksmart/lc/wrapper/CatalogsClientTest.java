@@ -27,25 +27,25 @@ public class CatalogsClientTest {
 		//Service eventBroker = catalog.getService("MqttBroker");
 		//System.out.println("broker-url: " + eventBroker.getProtocols().get(0).getEndpoint().getURL());
 		
-		Registration registration = catalog.createResource("satis-device", "satis-resource", "tcp://localhost:1883", "/topic1/resourcemqtt");
+		Registration registration = catalog.createResource("sample-device", "sample-resource", "tcp://localhost:1883", "/topic1/resourcemqtt");
     	
 		System.out.println("resource: " + new Gson().toJson(registration).toString());
 		
 		assertTrue(catalog.registerResource(registration));
 		
-		Resource resource = catalog.getResource("satis-resource");
+		Resource resource = catalog.getResource("sample-resource");
 		assertNotNull(resource);
 		System.out.println(("resource-topic: " + resource.getProtocols().get(0).getEndpoint().getTopic()));
 		
 		assertTrue(catalog.deleteResource(registration));
 		
-		eu.linksmart.lc.sc.types.Registration sregistration = catalog.createService("satis-service", "http://localhost:8080/service");
+		eu.linksmart.lc.sc.types.Registration sregistration = catalog.createService("sample-service", "http://localhost:8080/service");
 		
 		System.out.println("service: " + new Gson().toJson(sregistration).toString());
 		
 		assertTrue(catalog.registerService(sregistration));
 		
-		Service service = catalog.getService("satis-service");
+		Service service = catalog.getService("sample-service");
 		assertNotNull(service);
 		System.out.println(("service-url: " + service.getProtocols().get(0).getEndpoint().getURL()));
 		

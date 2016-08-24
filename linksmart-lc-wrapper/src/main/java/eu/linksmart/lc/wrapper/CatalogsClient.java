@@ -5,10 +5,12 @@ import java.util.UUID;
 import eu.linksmart.lc.rc.client.Comparison;
 import eu.linksmart.lc.rc.client.DeviceBuilder;
 import eu.linksmart.lc.rc.client.ResourceCatalog;
+import eu.linksmart.lc.rc.types.Catalog;
 import eu.linksmart.lc.rc.types.Registration;
 import eu.linksmart.lc.rc.types.Resource;
 import eu.linksmart.lc.sc.client.ServiceBuilder;
 import eu.linksmart.lc.sc.client.ServiceCatalog;
+import eu.linksmart.lc.sc.types.SCatalog;
 import eu.linksmart.lc.sc.types.Service;
 
 public class CatalogsClient {
@@ -70,5 +72,13 @@ public class CatalogsClient {
 	
 	public boolean deleteService(eu.linksmart.lc.sc.types.Registration sregistration) {
 		return ServiceCatalog.delete(sregistration.getId());
+	}
+	
+	public Catalog getAllResources(String path, String operation, String value) {
+		return ResourceCatalog.findResources(path, operation, value, 1, 100);
+	}
+	
+	public SCatalog getAllServices(String path, String criteria, String value) {
+		return ServiceCatalog.findServices(path, criteria, value, 1, 100);
 	}
 }

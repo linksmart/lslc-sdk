@@ -47,12 +47,12 @@
   		<dependency>
 			<groupId>eu.linksmart.lc</groupId>
     		<artifactId>resource-catalog-client</artifactId>
-    		<version>0.2.0</version>
+    		<version>0.3.0-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>eu.linksmart.lc</groupId>
     		<artifactId>service-catalog-client</artifactId>
-    		<version>0.2.0</version>
+    		<version>0.3.0-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>com.google.code.gson</groupId>

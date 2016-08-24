@@ -52,15 +52,18 @@ public class ServiceCatalog {
 	public static SCatalog findServices(String path, String criteria, String value, int page, int perPage) {
 		String result_fss = ServiceCatalogClient.getInstance(BASE_URL).findServices(path, criteria, value, page, perPage);
 		SCatalog catalog = new Gson().fromJson(result_fss, SCatalog.class);
-		adjustServicesId(catalog);
+		if(catalog != null)
+			adjustServicesId(catalog);
 		return catalog;	
 	}
 	
 	private static void adjustServicesId(SCatalog catalog) {
 		List<Service> services = catalog.getServices();
-		for (int i = 0; i < services.size(); i++) {
-            Service service = services.get(i);
-            service.setId(adjustServiceId(service.getId()));
+		if(services != null) {
+			for (int i = 0; i < services.size(); i++) {
+	            Service service = services.get(i);
+	            service.setId(adjustServiceId(service.getId()));
+			}
 		}
 	}
 	

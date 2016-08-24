@@ -1,5 +1,7 @@
 package eu.linksmart.lc.wrapper.sample;
 
+import org.eclipse.paho.client.mqttv3.MqttMessage;
+
 import eu.linksmart.lc.rc.types.Registration;
 import eu.linksmart.lc.sc.types.Service;
 import eu.linksmart.lc.wrapper.BrokerClient;

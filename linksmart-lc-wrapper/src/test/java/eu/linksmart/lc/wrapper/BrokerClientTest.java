@@ -11,7 +11,7 @@ public class BrokerClientTest {
 		
 		BrokerClient brokerClient = new BrokerClient("tcp://localhost:1883");
 		
-		String topic = "/satisfactory/dm";
+		String topic = "/sample/dm";
 		
 		brokerClient.subscribe(topic);
 		

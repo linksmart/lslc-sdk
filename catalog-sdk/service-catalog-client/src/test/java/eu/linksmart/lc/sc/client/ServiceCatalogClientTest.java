@@ -12,9 +12,7 @@ import static org.junit.Assert.assertTrue;
 
 public class ServiceCatalogClientTest {
 	
-	//private String BASE_URL = "http://gando.fit.fraunhofer.de:8090/sc";
 	private String BASE_URL = "http://localhost:8082/sc";
-	//private String BASE_URL = "http://192.168.56.101:8082/sc";
 	
 	@Test
 	public void testCatalogClient() {
@@ -23,6 +21,7 @@ public class ServiceCatalogClientTest {
 		String SERVICE_NAME = "MqttBroker";
 		
 		String serviceJson = readFileContents("/registration.json");
+		
 		assertTrue(ServiceCatalogClient.getInstance(BASE_URL).add(serviceJson));
 		
 		String result_gc = ServiceCatalogClient.getInstance(BASE_URL).get(SERVICE_ID);
@@ -60,23 +59,18 @@ public class ServiceCatalogClientTest {
 	private String readFileContents(String fileName) {
 		
 		//File jsonDataFile = new File((this.getClass().getResource((fileName)).getFile()));
-
-
-		//File jsonDataFile = new File((this.getClass().getResource((fileName)).getFile()));
+		
 		File jsonDataFile = null;
 
 		try {
 			URL aURL =this.getClass().getResource(fileName);
-			System.out.println("aURL :"+aURL.toString());
+			System.out.println("aURL: " + aURL.toString());
 			jsonDataFile = new File(aURL.toURI());
-			System.out.println("file :"+jsonDataFile.toString());
+			System.out.println("file: " + jsonDataFile.toString());
 		} catch (URISyntaxException e) {
 			e.printStackTrace();
 		}
 
-
-		//File jsonDataFile = new File((this.getClass().getResource((fileName)).getFile()));
-		
 		StringBuilder fileContents = null;
 		Scanner scanner = null;
 	
