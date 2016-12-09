@@ -16,7 +16,7 @@ public class ServiceCatalogTest {
 	
 	private String BASE_URL = "http://localhost:8082";
 	
-	@Test
+	//@Test
 	public void testTypesBinding() {
 		
 		//

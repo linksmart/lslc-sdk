@@ -14,7 +14,7 @@ public class ResourceCatalogClientTest {
 	
 	private String BASE_URL = "http://localhost:8081";
 	
-	@Test
+	//@Test
 	public void testCatalogClient() {
 		
 		String deviceJson = readFileContents("/registration.json");

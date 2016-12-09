@@ -88,7 +88,7 @@ public class CatalogTest {
 			
 	}
 	
-	@Test
+	//@Test
 	public void testResourceCatalog() {
 		
 		//
@@ -185,7 +185,7 @@ public class CatalogTest {
 		
 	}
 	
-	@Test
+	//@Test
 	public void testTypesBinding() {
 		
 		String deviceJson = readFileContents("/registration.json");
