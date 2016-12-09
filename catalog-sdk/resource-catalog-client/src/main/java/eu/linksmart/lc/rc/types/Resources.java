@@ -6,8 +6,8 @@ import java.util.List;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
-public class Devices {
-
+public class Resources {
+	
 	@SerializedName("@context")
 	@Expose
 	private String context;
@@ -17,9 +17,9 @@ public class Devices {
 	@SerializedName("type")
 	@Expose
 	private String type;
-	@SerializedName("devices")
+	@SerializedName("resources")
 	@Expose
-	private List<Device> devices = new ArrayList<Device>();
+	private List<Resource> resources = new ArrayList<Resource>();
 	@SerializedName("page")
 	@Expose
 	private Integer page;
@@ -87,19 +87,19 @@ public class Devices {
 	/**
 	*
 	* @return
-	* The devices
+	* The resources
 	*/
-	public List<Device> getDevices() {
-	return devices;
+	public List<Resource> getResources() {
+	return resources;
 	}
 
 	/**
 	*
-	* @param devices
-	* The devices
+	* @param resources
+	* The resources
 	*/
-	public void setDevices(List<Device> devices) {
-	this.devices = devices;
+	public void setResources(List<Resource> resources) {
+	this.resources = resources;
 	}
 
 	/**
@@ -155,4 +155,5 @@ public class Devices {
 	public void setTotal(Integer total) {
 	this.total = total;
 	}
+
 }

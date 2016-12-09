@@ -32,9 +32,9 @@ public class DeviceBuilderTest {
 		//File jsonFile = new File((this.getClass().getResource(("/registration.json")).getFile()));
 		assertNotNull(DeviceBuilder.createRegistration(jsonFile));
 		
-		assertNotNull(DeviceBuilder.createRegistration("testdc", "device-b", "resource-b", "http://localhost:8080/"));	
+		assertNotNull(DeviceBuilder.createRegistration("device-b", "resource-b", "http://localhost:8080/"));	
 		
-		Registration mqttReg = DeviceBuilder.createRegistration("testdm", "device-mqtt", "resource-mqtt", "tcp://localhost:1883", "/topic1/resourcemqtt");
+		Registration mqttReg = DeviceBuilder.createRegistration("device-mqtt", "resource-mqtt", "tcp://localhost:1883", "/topic1/resourcemqtt");
 		
 		System.out.println(new GsonBuilder().setPrettyPrinting().create().toJson(mqttReg));
 		assertNotNull(mqttReg);

@@ -1,7 +1,5 @@
 package eu.linksmart.lc.sc.client;
 
-import java.util.List;
-
 import com.google.gson.Gson;
 
 import eu.linksmart.lc.sc.types.Registration;
@@ -16,58 +14,39 @@ public class ServiceCatalog {
 		BASE_URL = url;
 	}
 	
-	public static boolean add(Registration registration) {
-		return ServiceCatalogClient.getInstance(BASE_URL).add(new Gson().toJson(registration));
+	public static String add(Registration registration) {
+		return getServiceId(ServiceCatalogClient.getInstance(BASE_URL).add(new Gson().toJson(registration)));
 	}
 	
-	public static Service get(String serviceID) {
-		String serviceJsonString = ServiceCatalogClient.getInstance(BASE_URL).get(serviceID);
-		Service service = new Gson().fromJson(serviceJsonString, Service.class);
-		service.setId(adjustServiceId(service.getId()));
-		return service;
+	public static Service get(String serviceId) {
+		return new Gson().fromJson(ServiceCatalogClient.getInstance(BASE_URL).get(serviceId), Service.class);
 	}
 	
-	public static boolean update(String serviceID, Registration updatedServiceJson) {
-		return ServiceCatalogClient.getInstance(BASE_URL).update(serviceID, new Gson().toJson(updatedServiceJson));
+	public static boolean update(String serviceId, Registration updatedServiceJson) {
+		return ServiceCatalogClient.getInstance(BASE_URL).update(serviceId, new Gson().toJson(updatedServiceJson));
 	}
 	
-	public static boolean delete(String serviceID) {
-		return ServiceCatalogClient.getInstance(BASE_URL).delete(serviceID);
+	public static boolean delete(String serviceId) {
+		return ServiceCatalogClient.getInstance(BASE_URL).delete(serviceId);
+	}
+	
+	public static SCatalog getServices() {
+		return new Gson().fromJson(ServiceCatalogClient.getInstance(BASE_URL).getServices(), SCatalog.class);
 	}
 	
 	public static SCatalog getServices(int page, int perPage) {
-		String catalogJsonString = ServiceCatalogClient.getInstance(BASE_URL).getServices(page, perPage);
-		SCatalog catalog = new Gson().fromJson(catalogJsonString, SCatalog.class);
-		adjustServicesId(catalog);
-		return catalog;
+		return new Gson().fromJson(ServiceCatalogClient.getInstance(BASE_URL).getServices(page, perPage), SCatalog.class);
 	}
 	
-	public static Service findService(String path, String criteria, String value) {
-		String result_fs = ServiceCatalogClient.getInstance(BASE_URL).findService(path, criteria, value);
-		Service service = new Gson().fromJson(result_fs, Service.class);
-		service.setId(adjustServiceId(service.getId()));
-		return service;	
+	public static SCatalog findServices(String path, String criteria, String value) {
+		return new Gson().fromJson(ServiceCatalogClient.getInstance(BASE_URL).findServices(path, criteria, value), SCatalog.class);	
 	}
 	
 	public static SCatalog findServices(String path, String criteria, String value, int page, int perPage) {
-		String result_fss = ServiceCatalogClient.getInstance(BASE_URL).findServices(path, criteria, value, page, perPage);
-		SCatalog catalog = new Gson().fromJson(result_fss, SCatalog.class);
-		if(catalog != null)
-			adjustServicesId(catalog);
-		return catalog;	
+		return new Gson().fromJson(ServiceCatalogClient.getInstance(BASE_URL).findServices(path, criteria, value, page, perPage), SCatalog.class);	
 	}
 	
-	private static void adjustServicesId(SCatalog catalog) {
-		List<Service> services = catalog.getServices();
-		if(services != null) {
-			for (int i = 0; i < services.size(); i++) {
-	            Service service = services.get(i);
-	            service.setId(adjustServiceId(service.getId()));
-			}
-		}
-	}
-	
-	private static String adjustServiceId(String serviceId) {
+	private static String getServiceId(String serviceId) {
 		StringBuilder sb = new StringBuilder(serviceId);
         sb.delete(0, (sb.indexOf("/", 1)) + 1);
         return sb.toString();

@@ -1,17 +1,13 @@
 package eu.linksmart.lc.wrapper;
 
-import java.util.UUID;
-
 import eu.linksmart.lc.rc.client.Comparison;
 import eu.linksmart.lc.rc.client.DeviceBuilder;
 import eu.linksmart.lc.rc.client.ResourceCatalog;
-import eu.linksmart.lc.rc.types.Catalog;
 import eu.linksmart.lc.rc.types.Registration;
-import eu.linksmart.lc.rc.types.Resource;
+import eu.linksmart.lc.rc.types.Resources;
 import eu.linksmart.lc.sc.client.ServiceBuilder;
 import eu.linksmart.lc.sc.client.ServiceCatalog;
 import eu.linksmart.lc.sc.types.SCatalog;
-import eu.linksmart.lc.sc.types.Service;
 
 public class CatalogsClient {
 	
@@ -27,58 +23,60 @@ public class CatalogsClient {
 	}
 	
 	public Registration createResource(String deviceName, String resourceName, String brokerUri, String topic) {
-		Registration registration = DeviceBuilder.createRegistration(UUID.randomUUID().toString(), deviceName, resourceName, brokerUri, topic);
-		registration.setTtl(-1);
-		return registration;
+		return DeviceBuilder.createRegistration(deviceName, resourceName, brokerUri, topic);
 	}
 	
 	public Registration createResource(String deviceName, String resourceName, String URL) {
-		Registration registration = DeviceBuilder.createRegistration(UUID.randomUUID().toString(), deviceName, resourceName, URL);
-		registration.setTtl(-1);
-		return registration;
+		return DeviceBuilder.createRegistration(deviceName, resourceName, URL);
 	}
 	
-	public boolean registerResource(Registration registration) {
+	public String registerResource(Registration registration) {
 		return ResourceCatalog.add(registration);
 	}
 	
-	public Resource getResource(String resourceName) {
-		return ResourceCatalog.findResource("name", Comparison.EQUALS.getCriteria(), resourceName);
+	public Resources getResource(String resourceName) {
+		return ResourceCatalog.findResources("name", Comparison.EQUALS.getCriteria(), resourceName);
 	}
 	
-	public boolean deleteResource(Registration registration) {
-		return ResourceCatalog.delete(registration.getId());
+	public boolean deleteResource(String resourceUrl) {
+		return ResourceCatalog.delete(resourceUrl);
 	}
 	
 	public eu.linksmart.lc.sc.types.Registration createService(String serviceName, String URL) {
-		eu.linksmart.lc.sc.types.Registration registration = ServiceBuilder.createRegistration(UUID.randomUUID().toString(), serviceName, URL);
-		registration.setTtl(-1);
+		eu.linksmart.lc.sc.types.Registration registration = ServiceBuilder.createRegistration(serviceName, URL);
 		return registration;
 	}
 	
 	public eu.linksmart.lc.sc.types.Registration createMQTTService(String serviceName, String brokerUri) {
-		eu.linksmart.lc.sc.types.Registration registration = ServiceBuilder.createMqttRegistration(UUID.randomUUID().toString(), serviceName, brokerUri);
-		registration.setTtl(-1);
+		eu.linksmart.lc.sc.types.Registration registration = ServiceBuilder.createMqttRegistration(serviceName, brokerUri);
 		return registration;
 	}
 	
-	public boolean registerService(eu.linksmart.lc.sc.types.Registration sregistration) {
+	public String registerService(eu.linksmart.lc.sc.types.Registration sregistration) {
 		return ServiceCatalog.add(sregistration);
 	}
 	
-	public Service getService(String serviceName) {
-		return ServiceCatalog.findService("name", Comparison.EQUALS.getCriteria(), serviceName);
+	public SCatalog getService(String serviceName) {
+		return ServiceCatalog.findServices("name", Comparison.EQUALS.getCriteria(), serviceName);
 	}
 	
-	public boolean deleteService(eu.linksmart.lc.sc.types.Registration sregistration) {
-		return ServiceCatalog.delete(sregistration.getId());
+	public boolean deleteService(String serviceId) {
+		return ServiceCatalog.delete(serviceId);
 	}
 	
-	public Catalog getAllResources(String path, String operation, String value) {
+	public Resources getAllResources() {
+		return ResourceCatalog.getResources();
+	}
+	
+	public SCatalog getAllServices() {
+		return ServiceCatalog.getServices();
+	}
+	
+	public Resources findResources(String path, String operation, String value) {
 		return ResourceCatalog.findResources(path, operation, value, 1, 100);
 	}
 	
-	public SCatalog getAllServices(String path, String criteria, String value) {
+	public SCatalog findServices(String path, String criteria, String value) {
 		return ServiceCatalog.findServices(path, criteria, value, 1, 100);
 	}
 }

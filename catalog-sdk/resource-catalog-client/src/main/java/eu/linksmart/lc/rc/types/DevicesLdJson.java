@@ -6,17 +6,11 @@ import java.util.List;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
-public class Devices {
-
+public class DevicesLdJson {
+	
 	@SerializedName("@context")
 	@Expose
 	private String context;
-	@SerializedName("id")
-	@Expose
-	private String id;
-	@SerializedName("type")
-	@Expose
-	private String type;
 	@SerializedName("devices")
 	@Expose
 	private List<Device> devices = new ArrayList<Device>();
@@ -46,42 +40,6 @@ public class Devices {
 	*/
 	public void setContext(String context) {
 	this.context = context;
-	}
-
-	/**
-	*
-	* @return
-	* The id
-	*/
-	public String getId() {
-	return id;
-	}
-
-	/**
-	*
-	* @param id
-	* The id
-	*/
-	public void setId(String id) {
-	this.id = id;
-	}
-
-	/**
-	*
-	* @return
-	* The type
-	*/
-	public String getType() {
-	return type;
-	}
-
-	/**
-	*
-	* @param type
-	* The type
-	*/
-	public void setType(String type) {
-	this.type = type;
 	}
 
 	/**

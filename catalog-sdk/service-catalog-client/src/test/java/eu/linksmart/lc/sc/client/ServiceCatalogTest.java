@@ -1,18 +1,20 @@
 package eu.linksmart.lc.sc.client;
 
 import com.google.gson.Gson;
+
 import eu.linksmart.lc.sc.types.Registration;
 import eu.linksmart.lc.sc.types.SCatalog;
 import eu.linksmart.lc.sc.types.Service;
+
 import org.junit.Test;
 
 import java.util.List;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 public class ServiceCatalogTest {
 	
-	private String BASE_URL = "http://localhost:8082/sc";
+	private String BASE_URL = "http://localhost:8082";
 	
 	@Test
 	public void testTypesBinding() {
@@ -20,10 +22,9 @@ public class ServiceCatalogTest {
 		//
 		// create service registration
 		//
-		Registration registration = ServiceBuilder.createRegistration("testserver", "MqttBroker-b", "tcp://testserver.com:1883");
-		System.out.println("Gson generated registration json: " + new Gson().toJson(registration));
+		Registration registration = ServiceBuilder.createRegistration("MqttBroker", "tcp://testserver.com:1883");
 		
-		//assertNotNull(ServiceBuilder.createRegistration("/registration.json"));
+		assertNotNull(ServiceBuilder.createRegistration("/registration.json"));
 		
 		//
 		// set URL of the catalog service
@@ -31,52 +32,51 @@ public class ServiceCatalogTest {
 		ServiceCatalog.setURL(BASE_URL);
 		
 		//
+		// get services
+		//
+		SCatalog catalog = new Gson().fromJson(ServiceCatalogClient.getInstance(BASE_URL).getServices(), SCatalog.class);
+		assertNotNull(catalog);
+		List<Service> services = catalog.getServices();
+		for (int i = 0; i < services.size(); i++) {
+            System.out.println("get-services - id: " + services.get(i).getId() + " - name: " + services.get(i).getName());
+		}
+			
+		//
 		// add service registration
 		//
-		assertTrue(ServiceCatalog.add(registration));
-		
-		String serviceID = registration.getId();
-		
-		
-		//
-		// update service
-		//
-		assertTrue(ServiceCatalog.update(serviceID, registration));
+		String serviceUrl = ServiceCatalogClient.getInstance(BASE_URL).add(new Gson().toJson(registration));
+		assertNotNull(serviceUrl);
+		String serviceId = getServiceId(serviceUrl);
 		
 		//
 		// get service
 		//
-		Service service = ServiceCatalog.get(serviceID);
-		System.out.println("get-service - id: " + service.getId() + " - name: " + service.getName());
+		Service service = new Gson().fromJson(ServiceCatalogClient.getInstance(BASE_URL).get(serviceId), Service.class);
+		assertNotNull(service);
+		System.out.println("get-service - id: " + service.getId() + " - name: " + service.getName() + " - url: " + service.getUrl());
 		
 		//
-		// get services
+		// update service
 		//
-		SCatalog catalog = ServiceCatalog.getServices(1, 100);
-		System.out.println("get-services - total: " + catalog.getServices().size());
-		List<Service> services = catalog.getServices();
-		for (int i = 0; i < services.size(); i++) {
-            Service cservice = services.get(i);
-            System.out.println("get-services - id: " + cservice.getId() + " - name: " + cservice.getName());
-		}
-		
-		//
-		// find service
-		//
-		Service searched_service = ServiceCatalog.findService("name", Comparison.EQUALS.getCriteria(), "MqttBroker-b");
-		System.out.println("find-service - id: " + searched_service.getId());
+		assertTrue(ServiceCatalogClient.getInstance(BASE_URL).update(serviceId, new Gson().toJson(registration)));
 		
 		//
 		// find services
 		//
-		SCatalog searched_services_catalog = ServiceCatalog.findServices("name", Comparison.EQUALS.getCriteria(), "MqttBroker-b", 1, 100);
-		System.out.println("find-services: total: " + searched_services_catalog.getServices().size());
-		List<Service> fservices = searched_services_catalog.getServices();
+		SCatalog fscatalog = new Gson().fromJson(ServiceCatalogClient.getInstance(BASE_URL).findServices("name", Comparison.EQUALS.getCriteria(), "MqttBroker"), SCatalog.class);
+		assertNotNull(fscatalog);
+		List<Service> fservices = fscatalog.getServices();
 		for (int i = 0; i < fservices.size(); i++) {
-            Service fservice = fservices.get(i);
-            System.out.println("find-services - id: " + fservice.getId() + " - name: " + fservice.getName());
+            System.out.println("find-services - id: " + fservices.get(i).getId() + " - name: " + fservices.get(i).getName());
 		}
 		
-		assertTrue(ServiceCatalog.delete(serviceID));
+		assertTrue(ServiceCatalog.delete(serviceId));
 	}
+	
+	private String getServiceId(String serviceUrl) {
+		StringBuilder sb = new StringBuilder(serviceUrl);
+        sb.delete(0, (sb.indexOf("/", 1)) + 1);
+        return sb.toString();
+	}
+
 }

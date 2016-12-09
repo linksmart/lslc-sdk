@@ -1,6 +1,4 @@
 {
-    "id": "testserver/broker",
-    "type": "Service",
     "name": "MqttBroker2",
     "description": "Demo MQTT Broker2",
     "meta": {

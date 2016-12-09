@@ -7,35 +7,15 @@ import com.google.gson.annotations.Expose;
 public class Registration {
 
 	@Expose
-	private String id;
-	@Expose
-	private String type;
-	@Expose
 	private String name;
 	@Expose
-	private Meta meta;
-	@Expose
 	private String description;
+	@Expose
+	private Meta meta;
 	@Expose
 	private Integer ttl;
 	@Expose
 	private List<Resource> resources = new ArrayList<Resource>();
-
-	public String getId() {
-		return id;
-	}
-
-	public void setId(String id) {
-		this.id = id;
-	}
-
-	public String getType() {
-		return type;
-	}
-
-	public void setType(String type) {
-		this.type = type;
-	}
 
 	public String getName() {
 		return name;

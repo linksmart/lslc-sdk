@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.google.gson.annotations.Expose;
+import com.google.gson.annotations.SerializedName;
 
 public class Service {
 
@@ -11,6 +12,9 @@ public class Service {
 	private String id;
 	@Expose
 	private String type;
+	@SerializedName("url")
+	@Expose
+	private String url;
 	@Expose
 	private String name;
 	@Expose
@@ -56,6 +60,24 @@ public class Service {
 	
 	public String getDescription() {
 		return description;
+	}
+	
+	/**
+	*
+	* @return
+	* The url
+	*/
+	public String getUrl() {
+	return url;
+	}
+
+	/**
+	*
+	* @param url
+	* The url
+	*/
+	public void setUrl(String url) {
+	this.url = url;
 	}
 	
 	public void setDescription(String description) {

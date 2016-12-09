@@ -1,93 +1,54 @@
 package eu.linksmart.lc.rc.types;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
 public class Catalog {
 
 	@Expose
-	private String id;
+	private String description;
+	
+	@SerializedName("api_version")
 	@Expose
-	private String type;
-	@SerializedName("@context")
+	private String apiVersion;
+	
+	@SerializedName("total_devices")
 	@Expose
-	private String context;
+	private Integer totalDevices;
+	
+	@SerializedName("total_resources")
 	@Expose
-	private Devices devices;
-	@Expose
-	private List<Resource> resources = new ArrayList<Resource>();
-	@Expose
-	private Integer page;
-	@SerializedName("per_page")
-	@Expose
-	private Integer perPage;
-	@Expose
-	private Integer total;
+	private Integer totalResources;
 	
-	public String getId() {
-		return id;
+	public String getDescription() {
+		return description;
 	}
 	
-	public void setId(String id) {
-		this.id = id;
+	public void setDescription(String description) {
+		this.description = description;
 	}
 	
-	public String getType() {
-		return type;
+	public String getApiVersion() {
+		return apiVersion;
 	}
 	
-	public void setType(String type) {
-		this.type = type;
+	public void setApiVersion(String apiVersion) {
+		this.apiVersion = apiVersion;
 	}
 	
-	public String getContext() {
-		return context;
+	public Integer getDevices() {
+		return totalDevices;
 	}
 	
-	public void setContext(String context) {
-		this.context = context;
+	public void setDevices(Integer totalDevices) {
+		this.totalDevices = totalDevices;
 	}
 	
-	public Devices getDevices() {
-		return devices;
+	public Integer getResources() {
+		return totalDevices;
 	}
 	
-	public void setDevices(Devices devices) {
-		this.devices = devices;
-	}
-	
-	public List<Resource> getResources() {
-		return resources;
-	}
-	
-	public void setResources(List<Resource> resources) {
-		this.resources = resources;
-	}
-	
-	public Integer getPage() {
-		return page;
-	}
-		
-	public void setPage(Integer page) {
-		this.page = page;
-	}
-		
-	public Integer getPerPage() {
-		return perPage;
-	}
-		
-	public void setPerPage(Integer perPage) {
-		this.perPage = perPage;
-	}
-		
-	public Integer getTotal() {
-		return total;
-	}
-		
-	public void setTotal(Integer total) {
-		this.total = total;
+	public void setResources(Integer totalResources) {
+		this.totalResources = totalResources;
 	}
 }

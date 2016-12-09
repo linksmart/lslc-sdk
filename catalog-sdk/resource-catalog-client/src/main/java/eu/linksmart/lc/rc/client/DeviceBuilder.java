@@ -38,32 +38,24 @@ public class DeviceBuilder {
 	}
 	
 	/*
-	 * creates a device registration for given ID & Name with one resource for protocol type REST 
+	 * creates a device registration for given Name with one resource for protocol type REST 
 	 */
-	public static Registration createRegistration(String deviceConnectorID, String deviceName, String resourceName, String URL) {
+	public static Registration createRegistration(String deviceName, String resourceName, String url) {
 		
 		Registration registration = new Registration();
 		
-		String deviceID = deviceConnectorID + "/" + deviceName;
-		
-		registration.setId(deviceID);
-		registration.setType("Device");
 		registration.setName(deviceName);
-		registration.setDescription(deviceID + "description");
-		registration.setTtl(60);
-		
-		String resourceID = deviceID + "/" + resourceName;
+		registration.setDescription("description");
 		
 		Resource resource = new Resource();
-		resource.setId(resourceID);
-		resource.setType("Resource");
+		
 		resource.setName(resourceName);
 		
 		Protocol protocol = new Protocol();
 		protocol.setType("REST");
 		
 		Endpoint endpoint = new Endpoint();
-		endpoint.setURL(URL);
+		endpoint.setUrl(url);
 		protocol.setEndpoint(endpoint);
 		
 		List<String> methodsList = new ArrayList<String>();
@@ -92,39 +84,29 @@ public class DeviceBuilder {
 	}
 	
 	/*
-	 * creates a device registration for given ID & Name with one resource for protocol type MQTT 
+	 * creates a device registration for given Name with one resource for protocol type MQTT 
 	 */
-	public static Registration createRegistration(String deviceConnectorID, String deviceName, String resourceName, String brokerURL, String topic) {
+	public static Registration createRegistration(String deviceName, String resourceName, String url, String topic) {
 		
 		Registration registration = new Registration();
 		
-		String deviceID = deviceConnectorID + "/" + deviceName;
-		
-		registration.setId(deviceID);
-		registration.setType("Device");
 		registration.setName(deviceName);
-		registration.setDescription(deviceID + "description");
-		registration.setTtl(60);
-		
-		String resourceID = deviceID + "/" + resourceName;
+		registration.setDescription("description");
 		
 		Resource resource = new Resource();
-		resource.setId(resourceID);
-		resource.setType("Resource");
 		resource.setName(resourceName);
 		
 		Protocol protocol = new Protocol();
 		protocol.setType("MQTT");
 		
 		Endpoint endpoint = new Endpoint();
-		endpoint.setBroker(brokerURL);
-		endpoint.setTopic(topic);
+		endpoint.setUrl(url);
+		endpoint.setPubTopic(topic);
 		
 		protocol.setEndpoint(endpoint);
 		
 		List<String> methodsList = new ArrayList<String>();
 		methodsList.add("PUB"); 
-		methodsList.add("SUB");
 		
 		protocol.setMethods(methodsList);
 		

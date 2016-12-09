@@ -39,23 +39,18 @@ public class ServiceBuilder {
 	/*
 	 * creates a service registration for given ID & Name with default protocol type REST 
 	 */
-	public static Registration createRegistration(String serverID, String serviceName, String URL) {
+	public static Registration createRegistration(String serviceName, String url) {
 		
 		Registration registration = new Registration();
 		
-		String serviceID = serverID + "/" + serviceName;
-		
-		registration.setId(serviceID);
-		registration.setType("Service");
 		registration.setName(serviceName);
-		registration.setDescription(serviceID + "description");
-		registration.setTtl(60);
+		registration.setDescription("description");
 		
 		Protocol protocol = new Protocol();
 		protocol.setType("REST");
 		
 		Endpoint endpoint = new Endpoint();
-		endpoint.setURL(URL);
+		endpoint.setUrl(url);
 		protocol.setEndpoint(endpoint);
 		
 		List<String> methodsList = new ArrayList<String>();
@@ -82,23 +77,18 @@ public class ServiceBuilder {
 	/*
 	 * creates a service registration for given ID & Name with one resource for protocol type MQTT 
 	 */
-	public static Registration createMqttRegistration(String serverID, String serviceName, String brokerURL) {
+	public static Registration createMqttRegistration(String serviceName, String brokerEndpoint) {
 		
 		Registration registration = new Registration();
 		
-		String serviceID = serverID + "/" + serviceName;
-		
-		registration.setId(serverID);
-		registration.setType("Service");
 		registration.setName(serviceName);
-		registration.setDescription(serviceID + "description");
-		registration.setTtl(60);
+		registration.setDescription("description");
 		
 		Protocol protocol = new Protocol();
 		protocol.setType("MQTT");
 		
 		Endpoint endpoint = new Endpoint();
-		endpoint.setURL(brokerURL);
+		endpoint.setUrl(brokerEndpoint);
 		
 		protocol.setEndpoint(endpoint);
 		

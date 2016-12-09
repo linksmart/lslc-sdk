@@ -15,6 +15,11 @@ public class SCatalog {
 	private String id;
 	@Expose
 	private String type;
+	@SerializedName("api_version")
+	@Expose
+	private String apiVersion;
+	@Expose
+	private String description;
 	@Expose
 	private List<Service> services = new ArrayList<Service>();
 	@Expose
@@ -24,6 +29,22 @@ public class SCatalog {
 	private Integer perPage;
 	@Expose
 	private Integer total;
+	
+	public String getDescription() {
+		return description;
+	}
+	
+	public void setDescription(String description) {
+		this.description = description;
+	}
+	
+	public String getApiVersion() {
+		return apiVersion;
+	}
+	
+	public void setApiVersion(String apiVersion) {
+		this.apiVersion = apiVersion;
+	}
 	
 	public String getContext() {
 		return context;

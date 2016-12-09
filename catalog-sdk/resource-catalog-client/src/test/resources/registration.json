@@ -1,14 +1,10 @@
 {
-    "id": "testdc/device1",
-    "type": "Device",
     "name": "device1",
-    "meta": {},
     "description": "device testing",
-    "ttl": 30,
+    "meta": {},
+    "ttl": 60,
     "resources": [
         {
-            "id": "testdc/device1/resource1",
-            "type": "Resource",
             "name": "resource1",
             "meta": {
                 "model": "Raspberry Pi B",
@@ -31,8 +27,9 @@
                 {
                     "type": "MQTT",
                     "endpoint": {
-                        "broker": "tcp://localhost:1883",
-                        "topic": "/topic1/resource1"
+                        "url": "tcp://localhost:1883",
+                        "pub_topic": "/topic1/resource1",
+                        "sub_topic": "/topic1/control"
                     },
                     "methods": [
                         "PUB"

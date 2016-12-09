@@ -1,6 +1,4 @@
 {
-    "id": "testserver/broker",
-    "type": "Service",
     "name": "MqttBroker",
     "description": "Demo MQTT Broker",
     "meta": {
@@ -20,6 +18,5 @@
                 "content-types": [ ]
           }
     ],
-    "representation": { },
-    "ttl": 30
+    "representation": { }
 }

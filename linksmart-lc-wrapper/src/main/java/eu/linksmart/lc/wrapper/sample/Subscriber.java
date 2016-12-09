@@ -7,6 +7,7 @@ import org.eclipse.paho.client.mqttv3.MqttMessage;
 import com.google.gson.Gson;
 
 import eu.linksmart.lc.rc.types.Resource;
+import eu.linksmart.lc.rc.types.Resources;
 import eu.linksmart.lc.wrapper.BrokerClient;
 import eu.linksmart.lc.wrapper.CatalogsClient;
 import eu.linksmart.lc.wrapper.SenMLEntry;
@@ -28,13 +29,13 @@ public class Subscriber {
 		// assuming that resource is already registered into Resource Catalog, therefore, registration documnent is retrieved from 
 		// Resource Catalog based on the "resource name" and parse it for the contextualization information
 		//
-		Resource resource = catalog.getResource("satisfactory-resource");
+		Resource resource = catalog.getResource("satisfactory-resource").getResources().get(0);
 		
 		//
 		// now parse the JSON document and know about the topic on which the events are being published by this resource
 		//
-		String brokerURL = resource.getProtocols().get(0).getEndpoint().getBroker();
-		String topic = resource.getProtocols().get(0).getEndpoint().getTopic();
+		String brokerURL = resource.getProtocols().get(0).getEndpoint().getUrl();
+		String topic = resource.getProtocols().get(0).getEndpoint().getPubTopic();
 		
 		//
 		// instantiate broker Callback
